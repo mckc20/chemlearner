@@ -1,10 +1,10 @@
-# ChemLearner 3D
+# 🧪 ChemLearner 3D
 
 > A minimalist, high-performance web application for managing chemical formulas, visualizing molecules in interactive 3D, and testing knowledge through dynamic quizzes.
 
 ---
 
-## 🧪 Project Overview
+## Project Overview
 
 ChemLearner 3D is a React-based web application deployed on Netlify. It allows users to:
 
