@@ -1,0 +1,45 @@
+{
+  "name": "chemlearner",
+  "version": "1.0.0",
+  "description": "> A minimalist, high-performance web application for managing chemical formulas, visualizing molecules in interactive 3D, and testing knowledge through dynamic quizzes.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mckc20/chemlearner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/mckc20/chemlearner/issues"
+  },
+  "homepage": "https://github.com/mckc20/chemlearner#readme",
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.4",
+    "papaparse": "^5.5.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "vite": "^7.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^10.0.3",
+    "eslint-plugin-react": "^7.37.5",
+    "jsdom": "^28.1.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "vitest": "^4.0.18"
+  }
+}
