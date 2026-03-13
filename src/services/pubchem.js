@@ -82,7 +82,12 @@ export async function resolveMolecule(formula) {
   const cacheKey = CACHE_PREFIX + formula
   const cached = localStorage.getItem(cacheKey)
   if (cached) {
-    return JSON.parse(cached)
+    const parsed = JSON.parse(cached)
+    // Invalidate cache entries missing required fields (e.g. cid)
+    if (parsed.cid != null) {
+      return parsed
+    }
+    localStorage.removeItem(cacheKey)
   }
 
   await throttle()
