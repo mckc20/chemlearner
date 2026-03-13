@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FormulaDisplay from './FormulaDisplay'
 
 export default function MoleculeList({ molecules, onDelete, onView, selectedIds, onSelectionChange }) {
   const [categoryFilter, setCategoryFilter] = useState('All')
@@ -104,7 +105,7 @@ export default function MoleculeList({ molecules, onDelete, onView, selectedIds,
                     </button>
                   </td>
                   <td className="px-3 py-3 font-mono text-gray-700 dark:text-gray-300">
-                    {molecule.formula}
+                    <FormulaDisplay formula={molecule.formula} />
                   </td>
                   <td className="px-3 py-3">
                     <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
