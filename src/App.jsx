@@ -24,8 +24,19 @@ export default function App() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <nav className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-semibold text-lg tracking-tight">
-            ChemLearner 3D
+          <span className="font-semibold text-lg tracking-tight flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <circle cx="5" cy="6" r="2" />
+              <circle cx="19" cy="6" r="2" />
+              <circle cx="5" cy="18" r="2" />
+              <circle cx="19" cy="18" r="2" />
+              <line x1="9.5" y1="10.5" x2="6.5" y2="7.5" />
+              <line x1="14.5" y1="10.5" x2="17.5" y2="7.5" />
+              <line x1="9.5" y1="13.5" x2="6.5" y2="16.5" />
+              <line x1="14.5" y1="13.5" x2="17.5" y2="16.5" />
+            </svg>
+            ChemLearner
           </span>
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <span className="text-gray-900 dark:text-gray-100 font-medium">Library</span>
