@@ -24,13 +24,15 @@ Formula → PubChem API (async formula search) → CID → SDF molblock → 3Dmo
 - **Caching**: Results cached in `localStorage` with `pubchem_cache_` prefix.
 - **Ambiguity detection**: Sets `isAmbiguous: true` when multiple compounds match a formula.
 
-## 3D Viewer (`MoleculeViewer.jsx`)
+## Dual-Panel Viewer (`MoleculeViewer.jsx`)
 
-- Renders SDF molblocks using 3Dmol.js in a modal overlay.
-- Ball-and-stick style (`stick: { radius: 0.15 }, sphere: { scale: 0.3 }`).
+- Modal overlay with two side-by-side panels (stacked on mobile):
+  - **Left panel — 2D Skeletal Formula**: Displays a 2D structure PNG fetched from PubChem's image API (`/rest/pug/compound/cid/{CID}/PNG`). Uses CSS `dark:invert` to handle dark mode for the black-on-white line art.
+  - **Right panel — 3D Ball-and-Stick**: Renders SDF molblocks using 3Dmol.js. Ball-and-stick style (`stick: { radius: 0.15 }, sphere: { scale: 0.3 }`). Includes a `ResizeObserver` to handle container size changes from responsive layout shifts.
 - Displays ambiguity warning banner when formula matches multiple isomers.
 - Close via Escape key or clicking outside the modal.
 - Shows loading spinner during resolution, error state on failure.
+- The `resolveMolecule` function returns `cid` alongside `molblock` and `smiles` to enable the 2D image fetch.
 
 ## Verified Molecules
 

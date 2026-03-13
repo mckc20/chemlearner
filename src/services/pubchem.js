@@ -115,6 +115,7 @@ export async function resolveMolecule(formula) {
   const molblock = await fetchSdf(cid)
 
   const result = {
+    cid,
     molblock,
     smiles: compounds[0].IsomericSMILES,
     isAmbiguous: compounds.length > 1,
