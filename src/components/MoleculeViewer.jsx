@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { resolveMolecule } from '../services/pubchem'
+import { smilesToSvg } from '../services/rdkit'
 import FormulaDisplay from './FormulaDisplay'
 
 export default function MoleculeViewer({ molecule, onClose }) {
@@ -8,11 +9,11 @@ export default function MoleculeViewer({ molecule, onClose }) {
   const [status, setStatus] = useState('loading') // 'loading' | 'error' | 'ready'
   const [errorMsg, setErrorMsg] = useState('')
   const [isAmbiguous, setIsAmbiguous] = useState(false)
-  const [cid, setCid] = useState(null)
-  const [imageStatus, setImageStatus] = useState('loading') // 'loading' | 'ready' | 'error'
+  const [svgMarkup, setSvgMarkup] = useState(null)
+  const [svgError, setSvgError] = useState(false)
   const molblockRef = useRef(null)
 
-  // Resolve formula → PubChem CID → 3D SDF molblock
+  // Resolve formula → PubChem CID → 3D SDF molblock + RDKit 2D SVG
   useEffect(() => {
     let cancelled = false
 
@@ -21,9 +22,20 @@ export default function MoleculeViewer({ molecule, onClose }) {
         const result = await resolveMolecule(molecule.formula)
         if (cancelled) return
         molblockRef.current = result.molblock
-        setCid(result.cid ?? null)
         setIsAmbiguous(result.isAmbiguous)
         setStatus('ready')
+
+        // Generate 2D SVG via RDKit from SMILES
+        if (result.smiles) {
+          try {
+            const svg = await smilesToSvg(result.smiles)
+            if (!cancelled) setSvgMarkup(svg)
+          } catch {
+            if (!cancelled) setSvgError(true)
+          }
+        } else {
+          setSvgError(true)
+        }
       } catch (err) {
         if (!cancelled) {
           setErrorMsg(err.message)
@@ -78,10 +90,6 @@ export default function MoleculeViewer({ molecule, onClose }) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
-  const imageUrl = cid
-    ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG?image_size=300x300`
-    : null
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -112,7 +120,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
 
         {/* Two-panel viewer area */}
         <div className="flex flex-col md:flex-row w-full">
-          {/* Left: 2D Skeletal Formula */}
+          {/* Left: 2D Skeletal Formula (RDKit SVG) */}
           <div className="relative w-full md:w-1/2 h-64 md:h-80 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
             <span className="absolute top-2 left-3 text-xs text-gray-400 dark:text-gray-500">2D Structure</span>
             {status === 'loading' && (
@@ -127,26 +135,18 @@ export default function MoleculeViewer({ molecule, onClose }) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">{errorMsg}</p>
               </div>
             )}
-            {status === 'ready' && imageUrl && (
-              <>
-                {imageStatus === 'loading' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
-                  </div>
-                )}
-                <img
-                  src={imageUrl}
-                  alt={`2D structure of ${molecule.name}`}
-                  className={`max-h-full max-w-full object-contain p-6 dark:invert ${imageStatus === 'loading' ? 'invisible' : ''}`}
-                  onLoad={() => setImageStatus('ready')}
-                  onError={() => setImageStatus('error')}
-                />
-              </>
+            {status === 'ready' && !svgMarkup && !svgError && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
+              </div>
             )}
-            {status === 'ready' && imageStatus === 'error' && (
-              <p className="text-xs text-gray-400 dark:text-gray-500">2D structure unavailable</p>
+            {status === 'ready' && svgMarkup && (
+              <div
+                className="max-h-full max-w-full p-6 [&_svg]:w-full [&_svg]:h-full"
+                dangerouslySetInnerHTML={{ __html: svgMarkup }}
+              />
             )}
-            {status === 'ready' && !imageUrl && (
+            {status === 'ready' && svgError && (
               <p className="text-xs text-gray-400 dark:text-gray-500">2D structure unavailable</p>
             )}
           </div>

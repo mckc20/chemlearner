@@ -1,6 +1,9 @@
 let rdkitPromise = null
 
-function initRDKit() {
+/**
+ * Initializes and returns the RDKit WASM module (singleton).
+ */
+export function initRDKit() {
   if (!rdkitPromise) {
     if (typeof window.initRDKitModule !== 'function') {
       return Promise.reject(new Error('RDKit is not loaded. Make sure the CDN script is included.'))
@@ -11,20 +14,42 @@ function initRDKit() {
 }
 
 /**
- * Converts a SMILES string to an SDF molblock using RDKit WASM.
+ * Generates a 2D skeletal structure SVG from a SMILES string using RDKit.
  *
  * @param {string} smiles - SMILES string
- * @returns {string} SDF molblock
- * @throws If SMILES is invalid or RDKit fails
+ * @param {number} [width=300] - SVG width
+ * @param {number} [height=300] - SVG height
+ * @returns {Promise<string>} SVG markup
  */
-export async function smilesToMolblock(smiles) {
+export async function smilesToSvg(smiles, width = 300, height = 300) {
   const RDKit = await initRDKit()
   const mol = RDKit.get_mol(smiles)
   if (!mol) {
     throw new Error(`Could not parse SMILES: "${smiles}"`)
   }
   try {
-    return mol.get_molblock()
+    return mol.get_svg(width, height)
+  } finally {
+    mol.delete()
+  }
+}
+
+/**
+ * Generates a 2D skeletal structure SVG from an SDF molblock using RDKit.
+ *
+ * @param {string} molblock - SDF molblock
+ * @param {number} [width=300] - SVG width
+ * @param {number} [height=300] - SVG height
+ * @returns {Promise<string>} SVG markup
+ */
+export async function molblockToSvg(molblock, width = 300, height = 300) {
+  const RDKit = await initRDKit()
+  const mol = RDKit.get_mol(molblock)
+  if (!mol) {
+    throw new Error('Could not parse molblock')
+  }
+  try {
+    return mol.get_svg(width, height)
   } finally {
     mol.delete()
   }
