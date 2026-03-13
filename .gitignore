@@ -29,3 +29,6 @@ Thumbs.db
 
 # Vite
 *.local
+
+# Claude Code
+.claude/
