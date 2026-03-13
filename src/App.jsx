@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useMoleculeLibrary } from './hooks/useMoleculeLibrary'
 import MoleculeList from './components/MoleculeList'
 import CSVUploader from './components/CSVUploader'
+import MoleculeViewer from './components/MoleculeViewer'
 import './index.css'
 
 export default function App() {
   const { molecules, deleteMolecule, importFromCSV } = useMoleculeLibrary()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
+  const [viewedMolecule, setViewedMolecule] = useState(null)
 
   function handleDelete(id) {
     deleteMolecule(id)
@@ -61,10 +63,18 @@ export default function App() {
         <MoleculeList
           molecules={molecules}
           onDelete={handleDelete}
+          onView={setViewedMolecule}
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
         />
       </main>
+
+      {viewedMolecule && (
+        <MoleculeViewer
+          molecule={viewedMolecule}
+          onClose={() => setViewedMolecule(null)}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function MoleculeList({ molecules, onDelete, selectedIds, onSelectionChange }) {
+export default function MoleculeList({ molecules, onDelete, onView, selectedIds, onSelectionChange }) {
   const [categoryFilter, setCategoryFilter] = useState('All')
 
   const categories = ['All', ...new Set(molecules.map(m => m.category))]
@@ -96,7 +96,12 @@ export default function MoleculeList({ molecules, onDelete, selectedIds, onSelec
                     />
                   </td>
                   <td className="px-3 py-3 font-medium text-gray-900 dark:text-gray-100">
-                    {molecule.name}
+                    <button
+                      onClick={() => onView(molecule)}
+                      className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-left"
+                    >
+                      {molecule.name}
+                    </button>
                   </td>
                   <td className="px-3 py-3 font-mono text-gray-700 dark:text-gray-300">
                     {molecule.formula}

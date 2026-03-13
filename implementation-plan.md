@@ -16,7 +16,7 @@ The project currently exists only as documentation (README.md, CLAUDE.md) with n
    - `tailwindcss`, `postcss`, `autoprefixer`
    - `papaparse`
    - `3dmol` (or load via CDN)
-   - `@rdkit/rdkit` (or load via CDN script tag)
+   - ~~`@rdkit/rdkit`~~ (removed — PubChem provides SDF molblocks directly)
 3. Configure Tailwind (`tailwind.config.js`, `postcss.config.js`, `index.css`)
 4. Set up `darkMode: 'media'` in Tailwind config (auto dark/light via `prefers-color-scheme`)
 5. Create base layout shell: `App.jsx` with top nav, main content area
@@ -58,21 +58,21 @@ The project currently exists only as documentation (README.md, CLAUDE.md) with n
 
 ### Tasks
 1. Create `src/services/pubchem.js`:
-   - `fetchSmiles(formula)` → GET `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/formula/{formula}/property/IsomericSMILES/JSON`
+   - `resolveMolecule(formula)` → async formula search via PubChem PUG REST, returning `{ molblock, smiles, isAmbiguous }`
+   - Handle PubChem's async ListKey polling (formula endpoint returns 202 + ListKey)
+   - Fetch SDF molblock directly from PubChem (3D preferred, 2D fallback for ionic compounds)
    - Handle ambiguous (multiple isomers): return first result + set `isAmbiguous: true`
-   - Respect rate limit (5 req/s) — add simple request queue/debounce
-2. Create `src/services/rdkit.js`:
-   - Lazy-load RDKit WASM via CDN
-   - `smilesToMolblock(smiles)` → returns 3D SDF molblock string
+   - Cache results in `localStorage`; respect rate limit (5 req/s) via 200ms throttle
+2. ~~Create `src/services/rdkit.js`~~ — **Removed.** PubChem provides SDF molblocks directly, eliminating the need for RDKit WASM.
 3. Create `src/components/MoleculeViewer.jsx`:
    - Mount `3Dmol.js` viewer in a `div` ref
-   - Accept `molblock` prop, call `viewer.addModel(molblock, 'sdf')` + `viewer.setStyle` + `viewer.zoomTo()` + `viewer.render()`
+   - Resolve formula via `resolveMolecule()`, render with `viewer.addModel(molblock, 'sdf')` + ball-and-stick style + `viewer.zoomTo()` + `viewer.render()`
    - Show ambiguity warning banner when `isAmbiguous` is true: *"The formula [X] is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results."*
-4. Wire into `MoleculeList`: clicking a molecule row opens `MoleculeViewer` in a modal or side panel
+4. Wire into `MoleculeList`: clicking a molecule name opens `MoleculeViewer` in a modal
 
-**Critical files:** `src/services/pubchem.js`, `src/services/rdkit.js`, `src/components/MoleculeViewer.jsx`
+**Critical files:** `src/services/pubchem.js`, `src/components/MoleculeViewer.jsx`
 
-**Verify:** Click Water → 3D H₂O renders; click Nitroglycerin → 3D model renders; try an ambiguous formula → warning appears.
+**Verify:** Click Water → 3D H₂O renders; click Nitroglycerin → 3D model renders; try an ambiguous formula → warning appears; Salt (NaCl) renders via 2D fallback.
 
 ---
 
@@ -100,7 +100,7 @@ The project currently exists only as documentation (README.md, CLAUDE.md) with n
 **Goal:** Production-ready build deployed to Netlify.
 
 ### Tasks
-1. Add loading states and error boundaries for API/WASM failures
+1. Add loading states and error boundaries for API failures
 2. Accessibility: keyboard nav, ARIA labels on interactive elements
 3. Write unit tests for:
    - `useMoleculeLibrary` hook (CRUD, localStorage, CSV import validation)
@@ -121,13 +121,14 @@ The project currently exists only as documentation (README.md, CLAUDE.md) with n
 ```bash
 npm install papaparse
 npm install -D tailwindcss postcss autoprefixer vitest @testing-library/react
-# 3Dmol.js and RDKit.js loaded via CDN script tags in index.html (WASM bundles are large)
+# 3Dmol.js loaded via CDN script tag in index.html
 ```
 
 ## Key Risks
 
 | Risk | Mitigation |
 |---|---|
-| RDKit WASM slow to load | Show spinner; lazy-load only when viewer opens |
-| PubChem rate limit (5 req/s) | Cache results in localStorage; debounce requests |
+| PubChem rate limit (5 req/s) | Cache results in localStorage; 200ms throttle between requests |
+| PubChem async formula search | Poll ListKey until results ready; timeout after 30 attempts |
+| Ionic compounds lack 3D conformers | Fall back to 2D SDF from PubChem |
 | 3Dmol.js SSR issues | Guard with `useEffect` + `useRef`; never render server-side |

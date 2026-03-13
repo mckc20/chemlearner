@@ -13,7 +13,7 @@ ChemLearner 3D is a React web app for managing chemical molecule libraries, visu
 | Framework | React (Vite) |
 | Styling | Tailwind CSS (auto dark/light via `prefers-color-scheme`) |
 | 3D Rendering | 3Dmol.js |
-| Chemistry Engine | RDKit.js (SMILES → 3D Molblock) |
+| Molecule Data | PubChem PUG REST (SDF molblocks fetched directly — no RDKit/WASM needed) |
 | CSV Parsing | PapaParse |
 | External API | PubChem PUG REST — no API key required; rate limit: 5 req/s, 400 req/min |
 | Persistence | Browser `localStorage` |
@@ -41,7 +41,8 @@ Three core modules:
 - All changes persisted to `localStorage`
 
 **2. Molecular Resolution Pipeline**
-Formula → PubChem API (SMILES) → RDKit.js (3D Molblock) → 3Dmol.js (interactive render)
+Formula → PubChem API (async search → CID → SDF molblock) → 3Dmol.js (interactive render)
+- 3D SDF preferred; falls back to 2D SDF for ionic compounds (e.g., NaCl)
 - If PubChem returns multiple isomers, display: *"The formula [X] is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results."*
 
 **3. Quiz Mode**
@@ -56,3 +57,12 @@ Formula → PubChem API (SMILES) → RDKit.js (3D Molblock) → 3Dmol.js (intera
 | `Formula` | Chemical formula (e.g. `H2O`) |
 | `Category` | Functional group or class (e.g. `Solvent`, `Acid`) |
 | `Description` | Educational context (free text) |
+
+## Documentation
+
+Project documentation lives in the `doc/` directory:
+
+- **`doc/features/`** — Markdown files describing each implemented feature (one file per feature).
+- **`doc/sessions/`** — Transcripts of the implementation sessions where features were built.
+
+When implementing a new feature, create or update the corresponding feature doc and add a session transcript.
