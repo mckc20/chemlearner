@@ -6,6 +6,7 @@ import CSVUploader from './components/CSVUploader'
 import MoleculeViewer from './components/MoleculeViewer'
 import EditMoleculeModal from './components/EditMoleculeModal'
 import AddMoleculeModal from './components/AddMoleculeModal'
+import CompareModal from './components/CompareModal'
 import QuizMode from './components/QuizMode'
 import QuizHistory from './components/QuizHistory'
 import './index.css'
@@ -21,6 +22,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('library') // 'library' | 'quiz' | 'history'
   const [quizMolecules, setQuizMolecules] = useState([])
   const [quizKey, setQuizKey] = useState(0) // force remount on retry
+  const [showCompare, setShowCompare] = useState(false)
 
   function handleDelete(id) {
     deleteMolecule(id)
@@ -134,7 +136,7 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 pb-16 space-y-6">
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         {/* Library view */}
         {activeView === 'library' && (
           <>
@@ -153,6 +155,17 @@ export default function App() {
                   className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   Export CSV
+                </button>
+                <button
+                  onClick={() => setShowCompare(true)}
+                  disabled={selectedIds.size !== 2}
+                  className={`text-sm px-3 py-1.5 rounded transition-colors ${
+                    selectedIds.size === 2
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'border border-gray-300 dark:border-gray-600 opacity-40 cursor-not-allowed text-gray-900 dark:text-gray-100'
+                  }`}
+                >
+                  Compare
                 </button>
                 <button
                   onClick={() => setShowUploader(v => !v)}
@@ -242,7 +255,14 @@ export default function App() {
         />
       )}
 
-      <footer className="fixed bottom-0 inset-x-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 text-center text-xs text-gray-400 dark:text-gray-500">
+      {showCompare && selectedIds.size === 2 && (
+        <CompareModal
+          molecules={molecules.filter(m => selectedIds.has(m.id))}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
+
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 text-center text-xs text-gray-400 dark:text-gray-500">
         A joint{' '}
         <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
         ,{' '}
