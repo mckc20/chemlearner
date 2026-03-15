@@ -5,10 +5,24 @@ beforeEach(() => {
   localStorage.clear()
 })
 
+const validMoleculeFields = {
+  wikipediaUrl: 'https://en.wikipedia.org/wiki/Test',
+  pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/1',
+  wikidataId: 'Q1',
+  smiles: 'C',
+}
+
+const validCSVFields = {
+  WikipediaUrl: 'https://en.wikipedia.org/wiki/Test',
+  PubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/1',
+  WikidataId: 'Q1',
+  SMILES: 'C',
+}
+
 describe('useMoleculeLibrary', () => {
-  test('pre-loads 4 default molecules on first run', () => {
+  test('pre-loads 15 default molecules on first run', () => {
     const { result } = renderHook(() => useMoleculeLibrary())
-    expect(result.current.molecules).toHaveLength(4)
+    expect(result.current.molecules).toHaveLength(15)
     const names = result.current.molecules.map(m => m.name)
     expect(names).toContain('Water')
     expect(names).toContain('Sulphuric Acid')
@@ -21,7 +35,7 @@ describe('useMoleculeLibrary', () => {
     const initialCount = result.current.molecules.length
 
     act(() => {
-      result.current.addMolecule({ name: 'Ethanol', formula: 'C2H5OH', category: 'Alcohol', description: 'Drinking alcohol.' })
+      result.current.addMolecule({ name: 'Ethanol', formula: 'C2H5OH', category: 'Alcohol', information: 'Drinking alcohol.', ...validMoleculeFields })
     })
     expect(result.current.molecules).toHaveLength(initialCount + 1)
 
@@ -35,7 +49,7 @@ describe('useMoleculeLibrary', () => {
     const { result } = renderHook(() => useMoleculeLibrary())
     let added
     act(() => {
-      added = result.current.addMolecule({ name: 'CO2', formula: 'CO2', category: 'Gas', description: 'Carbon dioxide.' })
+      added = result.current.addMolecule({ name: 'CO2', formula: 'CO2', category: 'Gas', information: 'Carbon dioxide.', ...validMoleculeFields })
     })
     expect(added.id).toBeTruthy()
     expect(result.current.molecules.find(m => m.id === added.id)).toBeDefined()
@@ -56,8 +70,8 @@ describe('useMoleculeLibrary', () => {
     let res
     act(() => {
       res = result.current.importFromCSV([
-        { Name: 'Ethanol', Formula: 'C2H5OH', Category: 'Alcohol', Description: 'Drinking alcohol.' },
-        { Name: 'Methane', Formula: 'CH4', Category: 'Gas', Description: 'Natural gas.' },
+        { Name: 'Ethanol', Formula: 'C2H5OH', Category: 'Alcohol', Information: 'Drinking alcohol.', ...validCSVFields },
+        { Name: 'Methane', Formula: 'CH4', Category: 'Gas', Information: 'Natural gas.', ...validCSVFields },
       ])
     })
     expect(res.imported).toBe(2)
@@ -71,7 +85,7 @@ describe('useMoleculeLibrary', () => {
     let res
     act(() => {
       res = result.current.importFromCSV([
-        { Name: 'Ethanol', Formula: '', Category: 'Alcohol', Description: 'Missing formula.' },
+        { Name: 'Ethanol', Formula: '', Category: 'Alcohol', Information: 'Missing formula.', ...validCSVFields },
       ])
     })
     expect(res.imported).toBe(0)
@@ -84,7 +98,7 @@ describe('useMoleculeLibrary', () => {
     let res
     act(() => {
       res = result.current.importFromCSV([
-        { Name: 'Water', Formula: 'XYZW', Category: 'Test', Description: 'Duplicate name.' },
+        { Name: 'Water', Formula: 'XYZW', Category: 'Test', Information: 'Duplicate name.', ...validCSVFields },
       ])
     })
     expect(res.imported).toBe(0)
@@ -96,7 +110,7 @@ describe('useMoleculeLibrary', () => {
     let res
     act(() => {
       res = result.current.importFromCSV([
-        { Name: 'NewWater', Formula: 'H2O', Category: 'Test', Description: 'Duplicate formula.' },
+        { Name: 'NewWater', Formula: 'H2O', Category: 'Test', Information: 'Duplicate formula.', ...validCSVFields },
       ])
     })
     expect(res.imported).toBe(0)

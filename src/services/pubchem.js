@@ -71,15 +71,49 @@ async function fetchSdf(cid) {
 }
 
 /**
- * Resolves a chemical formula to a 3D SDF molblock via PubChem.
- * Pipeline: formula → async search → CID → 3D SDF
+ * Resolves a SMILES string to a CID and SDF molblock via PubChem.
+ * This is a direct (synchronous) lookup — no polling needed.
+ */
+async function resolveBySmiles(smiles) {
+  await throttle()
+
+  const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(smiles)}/property/IsomericSMILES/JSON`
+  const response = await fetch(url)
+
+  if (response.status === 404) {
+    throw new Error(`SMILES "${smiles}" not found in PubChem.`)
+  }
+
+  const data = await response.json()
+
+  if (data.Fault) {
+    throw new Error(data.Fault.Details?.[0] || `SMILES "${smiles}" not found in PubChem.`)
+  }
+
+  const compounds = data.PropertyTable?.Properties
+  if (!compounds || compounds.length === 0) {
+    throw new Error(`No results found for SMILES "${smiles}".`)
+  }
+
+  return compounds[0]
+}
+
+/**
+ * Resolves a chemical formula (and optionally a SMILES string) to a 3D SDF
+ * molblock via PubChem.
+ *
+ * When a SMILES string is provided it is used for an exact lookup, avoiding
+ * the ambiguous-formula path entirely.
+ *
+ * Pipeline: SMILES|formula → PubChem → CID → 3D SDF
  * Results are cached in localStorage.
  *
  * @param {string} formula - Chemical formula (e.g. "H2O")
+ * @param {string} [smiles] - Optional SMILES string for exact lookup
  * @returns {{ molblock: string, smiles: string, isAmbiguous: boolean }}
  */
-export async function resolveMolecule(formula) {
-  const cacheKey = CACHE_PREFIX + formula
+export async function resolveMolecule(formula, smiles) {
+  const cacheKey = CACHE_PREFIX + (smiles || formula)
   const cached = localStorage.getItem(cacheKey)
   if (cached) {
     const parsed = JSON.parse(cached)
@@ -90,40 +124,54 @@ export async function resolveMolecule(formula) {
     localStorage.removeItem(cacheKey)
   }
 
-  await throttle()
+  let cid, resolvedSmiles, isAmbiguous
 
-  const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/formula/${encodeURIComponent(formula)}/property/IsomericSMILES/JSON`
-  const response = await fetch(url)
-
-  if (response.status === 404) {
-    throw new Error(`Formula "${formula}" not found in PubChem.`)
-  }
-
-  const data = await response.json()
-  let compounds
-
-  if (data.Waiting?.ListKey) {
-    compounds = await pollListKey(data.Waiting.ListKey)
-  } else if (data.PropertyTable?.Properties) {
-    compounds = data.PropertyTable.Properties
-  } else if (data.Fault) {
-    throw new Error(data.Fault.Details?.[0] || `Formula "${formula}" not found in PubChem.`)
+  if (smiles) {
+    // Exact SMILES lookup — always unambiguous
+    const compound = await resolveBySmiles(smiles)
+    cid = compound.CID
+    resolvedSmiles = compound.IsomericSMILES || smiles
+    isAmbiguous = false
   } else {
-    throw new Error(`Unexpected PubChem response for formula "${formula}".`)
+    // Fallback: formula-based async search
+    await throttle()
+
+    const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/formula/${encodeURIComponent(formula)}/property/IsomericSMILES/JSON`
+    const response = await fetch(url)
+
+    if (response.status === 404) {
+      throw new Error(`Formula "${formula}" not found in PubChem.`)
+    }
+
+    const data = await response.json()
+    let compounds
+
+    if (data.Waiting?.ListKey) {
+      compounds = await pollListKey(data.Waiting.ListKey)
+    } else if (data.PropertyTable?.Properties) {
+      compounds = data.PropertyTable.Properties
+    } else if (data.Fault) {
+      throw new Error(data.Fault.Details?.[0] || `Formula "${formula}" not found in PubChem.`)
+    } else {
+      throw new Error(`Unexpected PubChem response for formula "${formula}".`)
+    }
+
+    if (!compounds || compounds.length === 0) {
+      throw new Error(`No results found for formula "${formula}".`)
+    }
+
+    cid = compounds[0].CID
+    resolvedSmiles = compounds[0].IsomericSMILES || compounds[0].SMILES
+    isAmbiguous = compounds.length > 1
   }
 
-  if (!compounds || compounds.length === 0) {
-    throw new Error(`No results found for formula "${formula}".`)
-  }
-
-  const cid = compounds[0].CID
   const molblock = await fetchSdf(cid)
 
   const result = {
     cid,
     molblock,
-    smiles: compounds[0].IsomericSMILES || compounds[0].SMILES,
-    isAmbiguous: compounds.length > 1,
+    smiles: resolvedSmiles,
+    isAmbiguous,
   }
 
   localStorage.setItem(cacheKey, JSON.stringify(result))

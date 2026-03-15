@@ -19,7 +19,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
 
     async function resolve() {
       try {
-        const result = await resolveMolecule(molecule.formula)
+        const result = await resolveMolecule(molecule.formula, molecule.smiles)
         if (cancelled) return
         molblockRef.current = result.molblock
         setIsAmbiguous(result.isAmbiguous)
@@ -46,7 +46,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
 
     resolve()
     return () => { cancelled = true }
-  }, [molecule.formula])
+  }, [molecule.formula, molecule.smiles])
 
   // Mount 3Dmol.js viewer once molblock is ready
   useEffect(() => {
@@ -117,6 +117,36 @@ export default function MoleculeViewer({ molecule, onClose }) {
             The formula <FormulaDisplay formula={molecule.formula} /> is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results.
           </div>
         )}
+
+        {/* Molecule metadata */}
+        <div className="px-5 py-3 border-b border-gray-200 dark:border-gray-700 space-y-2">
+          {molecule.information && (
+            <p className="text-sm text-gray-700 dark:text-gray-300">{molecule.information}</p>
+          )}
+          {molecule.smiles && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="font-medium text-gray-700 dark:text-gray-300">SMILES: </span>
+              <code className="font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">{molecule.smiles}</code>
+            </p>
+          )}
+          <div className="flex flex-wrap gap-3 text-sm">
+            {molecule.wikipediaUrl && (
+              <a href={molecule.wikipediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                Wikipedia
+              </a>
+            )}
+            {molecule.pubchemUrl && (
+              <a href={molecule.pubchemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                PubChem
+              </a>
+            )}
+            {molecule.wikidataId && (
+              <a href={`https://www.wikidata.org/wiki/${molecule.wikidataId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                Wikidata ({molecule.wikidataId})
+              </a>
+            )}
+          </div>
+        </div>
 
         {/* Two-panel viewer area */}
         <div className="flex flex-col md:flex-row w-full">

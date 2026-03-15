@@ -56,7 +56,11 @@ Formula → PubChem API (async search → CID → SDF molblock) → 3Dmol.js (in
 | `Name` | Common name (e.g. `Water`) |
 | `Formula` | Chemical formula (e.g. `H2O`) |
 | `Category` | Functional group or class (e.g. `Solvent`, `Acid`) |
-| `Description` | Educational context (free text) |
+| `Information` | Educational context (free text) |
+| `WikipediaUrl` | Link to Wikipedia article |
+| `PubchemUrl` | Link to PubChem compound page |
+| `WikidataId` | Wikidata entity ID (e.g. `Q283`) |
+| `SMILES` | SMILES notation (e.g. `O`) |
 
 ## Documentation
 
