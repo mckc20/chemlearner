@@ -204,7 +204,7 @@ export default function App() {
 
       <footer className="fixed bottom-0 inset-x-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 text-center text-xs text-gray-400 dark:text-gray-500">
         A joint{' '}
-        <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc</a>
+        <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
         ,{' '}
         <a href="https://github.com/rafacm" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">rafacm</a>
         {' '}and{' '}
