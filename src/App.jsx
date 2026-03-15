@@ -1,19 +1,26 @@
 import { useState } from 'react'
 import { useMoleculeLibrary } from './hooks/useMoleculeLibrary'
+import { useQuizHistory } from './hooks/useQuizHistory'
 import MoleculeList from './components/MoleculeList'
 import CSVUploader from './components/CSVUploader'
 import MoleculeViewer from './components/MoleculeViewer'
 import EditMoleculeModal from './components/EditMoleculeModal'
 import AddMoleculeModal from './components/AddMoleculeModal'
+import QuizMode from './components/QuizMode'
+import QuizHistory from './components/QuizHistory'
 import './index.css'
 
 export default function App() {
   const { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
+  const { history, saveQuiz, deleteQuiz } = useQuizHistory()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
   const [viewedMolecule, setViewedMolecule] = useState(null)
   const [editingMolecule, setEditingMolecule] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [activeView, setActiveView] = useState('library') // 'library' | 'quiz' | 'history'
+  const [quizMolecules, setQuizMolecules] = useState([])
+  const [quizKey, setQuizKey] = useState(0) // force remount on retry
 
   function handleDelete(id) {
     deleteMolecule(id)
@@ -23,6 +30,40 @@ export default function App() {
       return next
     })
   }
+
+  function startQuiz(mols) {
+    setQuizMolecules(mols)
+    setQuizKey(k => k + 1)
+    setActiveView('quiz')
+  }
+
+  function handleStartQuiz() {
+    const selected = molecules.filter(m => selectedIds.has(m.id))
+    startQuiz(selected)
+  }
+
+  function handleQuizExit(action, mols) {
+    if (action === 'retry') {
+      startQuiz(mols)
+    } else if (action === 'practice') {
+      startQuiz(mols)
+    } else {
+      setActiveView('library')
+    }
+  }
+
+  function handleHistoryRetry(mols) {
+    startQuiz(mols)
+  }
+
+  function handleHistoryPracticeMistakes(mols) {
+    startQuiz(mols)
+  }
+
+  const navItems = [
+    { key: 'library', label: 'Library' },
+    { key: 'history', label: 'Quiz History' },
+  ]
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -43,52 +84,94 @@ export default function App() {
             ChemLearner
           </span>
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span className="text-gray-900 dark:text-gray-100 font-medium">Library</span>
-            <span>Quiz</span>
+            {navItems.map(item => (
+              <button
+                key={item.key}
+                onClick={() => setActiveView(item.key)}
+                className={`${
+                  activeView === item.key || (activeView === 'quiz' && item.key === 'library')
+                    ? 'text-gray-900 dark:text-gray-100 font-medium'
+                    : 'hover:text-gray-700 dark:hover:text-gray-300'
+                } transition-colors`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </div>
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Molecule Library</h1>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              Add Molecule
-            </button>
-            <button
-              onClick={() => setShowUploader(v => !v)}
-              className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              {showUploader ? 'Hide CSV Upload' : 'Import CSV'}
-            </button>
-            <button
-              disabled={selectedIds.size < 2}
-              className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              Start Quiz ({selectedIds.size} selected)
-            </button>
-          </div>
-        </div>
+        {/* Library view */}
+        {activeView === 'library' && (
+          <>
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold">Molecule Library</h1>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Add Molecule
+                </button>
+                <button
+                  onClick={() => setShowUploader(v => !v)}
+                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {showUploader ? 'Hide CSV Upload' : 'Import CSV'}
+                </button>
+                <button
+                  onClick={handleStartQuiz}
+                  disabled={selectedIds.size < 2}
+                  className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Start Quiz ({selectedIds.size} selected)
+                </button>
+              </div>
+            </div>
 
-        {showUploader && (
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <h2 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Import from CSV</h2>
-            <CSVUploader onImport={importFromCSV} />
-          </div>
+            {showUploader && (
+              <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                <h2 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Import from CSV</h2>
+                <CSVUploader onImport={importFromCSV} />
+              </div>
+            )}
+
+            <MoleculeList
+              molecules={molecules}
+              onDelete={handleDelete}
+              onView={setViewedMolecule}
+              onEdit={setEditingMolecule}
+              selectedIds={selectedIds}
+              onSelectionChange={setSelectedIds}
+            />
+          </>
         )}
 
-        <MoleculeList
-          molecules={molecules}
-          onDelete={handleDelete}
-          onView={setViewedMolecule}
-          onEdit={setEditingMolecule}
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
-        />
+        {/* Quiz view */}
+        {activeView === 'quiz' && (
+          <QuizMode
+            key={quizKey}
+            quizMolecules={quizMolecules}
+            allMolecules={molecules}
+            onExit={handleQuizExit}
+            onSave={saveQuiz}
+          />
+        )}
+
+        {/* History view */}
+        {activeView === 'history' && (
+          <>
+            <h1 className="text-xl font-semibold">Quiz History</h1>
+            <QuizHistory
+              history={history}
+              onDeleteQuiz={deleteQuiz}
+              onRetry={handleHistoryRetry}
+              onPracticeMistakes={handleHistoryPracticeMistakes}
+              allMolecules={molecules}
+            />
+          </>
+        )}
       </main>
 
       {showAddModal && (
