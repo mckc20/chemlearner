@@ -3,13 +3,15 @@ import { useMoleculeLibrary } from './hooks/useMoleculeLibrary'
 import MoleculeList from './components/MoleculeList'
 import CSVUploader from './components/CSVUploader'
 import MoleculeViewer from './components/MoleculeViewer'
+import EditMoleculeModal from './components/EditMoleculeModal'
 import './index.css'
 
 export default function App() {
-  const { molecules, deleteMolecule, importFromCSV } = useMoleculeLibrary()
+  const { molecules, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
   const [viewedMolecule, setViewedMolecule] = useState(null)
+  const [editingMolecule, setEditingMolecule] = useState(null)
 
   function handleDelete(id) {
     deleteMolecule(id)
@@ -75,10 +77,22 @@ export default function App() {
           molecules={molecules}
           onDelete={handleDelete}
           onView={setViewedMolecule}
+          onEdit={setEditingMolecule}
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
         />
       </main>
+
+      {editingMolecule && (
+        <EditMoleculeModal
+          molecule={editingMolecule}
+          onSave={(id, updates) => {
+            updateMolecule(id, updates)
+            setEditingMolecule(null)
+          }}
+          onCancel={() => setEditingMolecule(null)}
+        />
+      )}
 
       {viewedMolecule && (
         <MoleculeViewer

@@ -70,6 +70,10 @@ export function useMoleculeLibrary() {
     return newMolecule
   }
 
+  function updateMolecule(id, updates) {
+    setMolecules(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m))
+  }
+
   function deleteMolecule(id) {
     setMolecules(prev => prev.filter(m => m.id !== id))
   }
@@ -118,5 +122,5 @@ export function useMoleculeLibrary() {
     return { imported: imported.length, errors }
   }
 
-  return { molecules, addMolecule, deleteMolecule, importFromCSV }
+  return { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV }
 }
