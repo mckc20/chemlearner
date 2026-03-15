@@ -1,4 +1,4 @@
-export const DATA_VERSION = 1
+export const DATA_VERSION = 2
 
 export const DEFAULTS = [
   {
@@ -20,7 +20,7 @@ export const DEFAULTS = [
     information: 'Salmiac spirit, Cleaning and Fertilizers',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Ammonium_hydroxide',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/14923',
-    wikidataId: 'Q188390',
+    wikidataId: 'Q421888',
     smiles: '[NH4+].[OH-]',
   },
   {
@@ -42,7 +42,7 @@ export const DEFAULTS = [
     information: 'Mineral water',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Carbonic_acid',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/767',
-    wikidataId: 'Q104085',
+    wikidataId: 'Q104334',
     smiles: 'OC(O)=O',
   },
   {
@@ -75,7 +75,7 @@ export const DEFAULTS = [
     information: 'Fertilizers, Dyes, Explosives',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Nitric_acid',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/944',
-    wikidataId: 'Q40558',
+    wikidataId: 'Q83320',
     smiles: 'O[N+](=O)[O-]',
   },
   {
@@ -86,7 +86,7 @@ export const DEFAULTS = [
     information: 'A highly sensitive explosive compound used in dynamite and as a vasodilator.',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Nitroglycerin',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/4510',
-    wikidataId: 'Q184650',
+    wikidataId: 'Q162867',
     smiles: '[O-][N+](=O)OCC(O[N+](=O)[O-])CO[N+](=O)[O-]',
   },
   {
@@ -97,7 +97,7 @@ export const DEFAULTS = [
     information: 'Fertilizers',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Phosphoric_acid',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/1004',
-    wikidataId: 'Q37221',
+    wikidataId: 'Q184782',
     smiles: 'OP(O)(O)=O',
   },
   {
@@ -108,7 +108,7 @@ export const DEFAULTS = [
     information: 'Electrolyte in accumulators (batteries)',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Potassium_hydroxide',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/14797',
-    wikidataId: 'Q151438',
+    wikidataId: 'Q132298',
     smiles: '[K]O',
   },
   {
@@ -141,7 +141,7 @@ export const DEFAULTS = [
     information: 'Strongly corrosive, Soap production, Cleaning agents',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Sodium_hydroxide',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/14798',
-    wikidataId: 'Q40587',
+    wikidataId: 'Q102769',
     smiles: '[Na]O',
   },
   {
@@ -152,7 +152,7 @@ export const DEFAULTS = [
     information: 'A highly corrosive strong mineral acid with wide industrial use.',
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Sulfuric_acid',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/1118',
-    wikidataId: 'Q4530',
+    wikidataId: 'Q4118',
     smiles: 'OS(O)(=O)=O',
   },
   {
