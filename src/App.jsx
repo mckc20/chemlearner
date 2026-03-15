@@ -37,6 +37,39 @@ export default function App() {
     setActiveView('quiz')
   }
 
+  function handleExportCSV() {
+    const selected = molecules.filter(m => selectedIds.has(m.id))
+    const columnMap = {
+      Name: 'name', Formula: 'formula', Category: 'category', Information: 'information',
+      WikipediaUrl: 'wikipediaUrl', PubchemUrl: 'pubchemUrl', WikidataId: 'wikidataId', SMILES: 'smiles'
+    }
+    const columns = Object.keys(columnMap)
+    const escapeCsv = (val) => {
+      const str = val == null ? '' : String(val)
+      return str.includes(',') || str.includes('"') || str.includes('\n')
+        ? `"${str.replace(/"/g, '""')}"`
+        : str
+    }
+    const rows = [
+      columns.join(','),
+      ...selected.map(m => columns.map(col => escapeCsv(m[columnMap[col]])).join(','))
+    ]
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const now = new Date()
+    const timestamp = now.getFullYear().toString()
+      + String(now.getMonth() + 1).padStart(2, '0')
+      + String(now.getDate()).padStart(2, '0')
+      + '_' + String(now.getHours()).padStart(2, '0')
+      + String(now.getMinutes()).padStart(2, '0')
+      + String(now.getSeconds()).padStart(2, '0')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `molecules_${timestamp}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function handleStartQuiz() {
     const selected = molecules.filter(m => selectedIds.has(m.id))
     startQuiz(selected)
@@ -113,6 +146,13 @@ export default function App() {
                   className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   Add Molecule
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  disabled={selectedIds.size === 0}
+                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Export CSV
                 </button>
                 <button
                   onClick={() => setShowUploader(v => !v)}
