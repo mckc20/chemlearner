@@ -95,7 +95,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <div>
@@ -121,7 +121,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
         {/* Two-panel viewer area */}
         <div className="flex flex-col md:flex-row w-full">
           {/* Left: 2D Skeletal Formula (RDKit SVG) */}
-          <div className="relative w-full md:w-1/2 h-64 md:h-80 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+          <div className="relative w-full md:w-1/2 h-80 md:h-[28rem] border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
             <span className="absolute top-2 left-3 text-xs text-gray-400 dark:text-gray-500">2D Structure</span>
             {status === 'loading' && (
               <div className="flex flex-col items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -152,7 +152,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
           </div>
 
           {/* Right: 3D Ball-and-Stick */}
-          <div className="relative w-full md:w-1/2 h-64 md:h-80 bg-white dark:bg-gray-800">
+          <div className="relative w-full md:w-1/2 h-80 md:h-[28rem] bg-white dark:bg-gray-800">
             <span className="absolute top-2 left-3 text-xs text-gray-400 dark:text-gray-500 z-10">3D Model</span>
             {status === 'loading' && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
