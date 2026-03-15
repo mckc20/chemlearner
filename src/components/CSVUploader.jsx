@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import Papa from 'papaparse'
 
-const REQUIRED_COLUMNS = ['Name', 'Formula', 'Category', 'Description']
+const REQUIRED_COLUMNS = ['Name', 'Formula', 'Category', 'Information', 'WikipediaUrl', 'PubchemUrl', 'WikidataId', 'SMILES']
 
 export default function CSVUploader({ onImport }) {
   const [status, setStatus] = useState(null) // { type: 'success'|'error', message }

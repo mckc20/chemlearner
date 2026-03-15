@@ -70,7 +70,7 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Name</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Formula</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Category</th>
-              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">Description</th>
+              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">Information</th>
               <th className="px-3 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Actions</th>
             </tr>
           </thead>
@@ -113,7 +113,7 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
                     </span>
                   </td>
                   <td className="px-3 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">
-                    {molecule.description}
+                    {molecule.information}
                   </td>
                   <td className="px-3 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
