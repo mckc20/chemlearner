@@ -4,14 +4,16 @@ import MoleculeList from './components/MoleculeList'
 import CSVUploader from './components/CSVUploader'
 import MoleculeViewer from './components/MoleculeViewer'
 import EditMoleculeModal from './components/EditMoleculeModal'
+import AddMoleculeModal from './components/AddMoleculeModal'
 import './index.css'
 
 export default function App() {
-  const { molecules, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
+  const { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
   const [viewedMolecule, setViewedMolecule] = useState(null)
   const [editingMolecule, setEditingMolecule] = useState(null)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   function handleDelete(id) {
     deleteMolecule(id)
@@ -52,6 +54,12 @@ export default function App() {
           <h1 className="text-xl font-semibold">Molecule Library</h1>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowAddModal(true)}
+              className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              Add Molecule
+            </button>
+            <button
               onClick={() => setShowUploader(v => !v)}
               className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
@@ -82,6 +90,16 @@ export default function App() {
           onSelectionChange={setSelectedIds}
         />
       </main>
+
+      {showAddModal && (
+        <AddMoleculeModal
+          onAdd={(molecule) => {
+            addMolecule(molecule)
+            setShowAddModal(false)
+          }}
+          onCancel={() => setShowAddModal(false)}
+        />
+      )}
 
       {editingMolecule && (
         <EditMoleculeModal
