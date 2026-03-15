@@ -57,7 +57,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
     })
     viewer.addModel(molblockRef.current, 'sdf')
     viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } })
-    viewer.zoomTo({}, 1.5)
+    viewer.zoomTo({}, 0.8)
     viewer.render()
     viewerInstanceRef.current = viewer
 

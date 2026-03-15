@@ -32,6 +32,8 @@ export async function smilesToSvg(smiles, width = 300, height = 300) {
     throw new Error(`Could not parse SMILES: "${smiles}"`)
   }
   try {
+    mol.add_hs_in_place()
+    mol.set_new_coords()
     return mol.get_svg(width, height)
   } finally {
     mol.delete()

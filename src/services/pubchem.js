@@ -83,8 +83,8 @@ export async function resolveMolecule(formula) {
   const cached = localStorage.getItem(cacheKey)
   if (cached) {
     const parsed = JSON.parse(cached)
-    // Invalidate cache entries missing required fields (e.g. cid)
-    if (parsed.cid != null) {
+    // Invalidate cache entries missing required fields (e.g. cid, smiles)
+    if (parsed.cid != null && parsed.smiles) {
       return parsed
     }
     localStorage.removeItem(cacheKey)
@@ -122,7 +122,7 @@ export async function resolveMolecule(formula) {
   const result = {
     cid,
     molblock,
-    smiles: compounds[0].IsomericSMILES,
+    smiles: compounds[0].IsomericSMILES || compounds[0].SMILES,
     isAmbiguous: compounds.length > 1,
   }
 
