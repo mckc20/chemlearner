@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import FormulaDisplay from './FormulaDisplay'
 
-export default function MoleculeList({ molecules, onDelete, onView, selectedIds, onSelectionChange }) {
+export default function MoleculeList({ molecules, onDelete, onView, onEdit, selectedIds, onSelectionChange }) {
   const [categoryFilter, setCategoryFilter] = useState('All')
 
   const categories = ['All', ...new Set(molecules.map(m => m.category))]
@@ -71,7 +71,7 @@ export default function MoleculeList({ molecules, onDelete, onView, selectedIds,
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Formula</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Category</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">Description</th>
-              <th className="w-16 px-3 py-3"></th>
+              <th className="px-3 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -112,17 +112,35 @@ export default function MoleculeList({ molecules, onDelete, onView, selectedIds,
                       {molecule.category}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell max-w-xs truncate">
+                  <td className="px-3 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">
                     {molecule.description}
                   </td>
                   <td className="px-3 py-3 text-right">
-                    <button
-                      onClick={() => onDelete(molecule.id)}
-                      aria-label={`Delete ${molecule.name}`}
-                      className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => onView(molecule)}
+                        aria-label={`View ${molecule.name}`}
+                        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => onEdit(molecule)}
+                        aria-label={`Edit ${molecule.name}`}
+                        className="text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors text-xs px-2 py-1 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onDelete(molecule.id)}
+                        disabled={molecule.id.startsWith('default-')}
+                        aria-label={`Delete ${molecule.name}`}
+                        title={molecule.id.startsWith('default-') ? 'Default molecules cannot be deleted' : undefined}
+                        className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:hover:text-gray-400 disabled:hover:bg-transparent"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
