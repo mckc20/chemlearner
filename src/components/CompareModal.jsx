@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { resolveMolecule } from '../services/pubchem'
 import { smilesToSvg } from '../services/rdkit'
 import FormulaDisplay from './FormulaDisplay'
+import MoleculeFacts from './MoleculeFacts'
 
 function MoleculeStructure({ mol }) {
   const viewerRef = useRef(null)
@@ -161,6 +162,8 @@ function MoleculeCard({ mol }) {
           )}
         </div>
       ))}
+
+      {mol.id && <MoleculeFacts moleculeId={mol.id} compact />}
 
       <div>
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Links</p>
