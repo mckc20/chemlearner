@@ -134,6 +134,43 @@ describe('runMigrations', () => {
     expect(custom._userModified).toBeUndefined()
   })
 
+  test('v2→v3: resets _userModified on defaults falsely flagged due to missing smiles', () => {
+    // Simulate pre-SMILES data: defaults without smiles field, marked as modified
+    // because v0→v1 compared the missing smiles field against DEFAULTS
+    const molecules = DEFAULTS.map(d => {
+      const { smiles, ...rest } = d
+      return { ...rest, smiles: '', _userModified: true }
+    })
+    localStorage.setItem(MOLECULES_KEY, JSON.stringify(molecules))
+    localStorage.setItem(VERSION_KEY, '2')
+
+    runMigrations()
+
+    const stored = JSON.parse(localStorage.getItem(MOLECULES_KEY))
+    const water = stored.find(m => m.id === 'default-15')
+    // Should be reset to false since no real user edits were made
+    expect(water._userModified).toBe(false)
+    // syncDefaults should have restored the SMILES
+    expect(water.smiles).toBe('O')
+  })
+
+  test('v2→v3: preserves _userModified on truly user-edited defaults', () => {
+    const molecules = DEFAULTS.map(d =>
+      d.id === 'default-15'
+        ? { ...d, information: 'I changed this', _userModified: true }
+        : { ...d, _userModified: false }
+    )
+    localStorage.setItem(MOLECULES_KEY, JSON.stringify(molecules))
+    localStorage.setItem(VERSION_KEY, '2')
+
+    runMigrations()
+
+    const stored = JSON.parse(localStorage.getItem(MOLECULES_KEY))
+    const water = stored.find(m => m.id === 'default-15')
+    expect(water._userModified).toBe(true)
+    expect(water.information).toBe('I changed this')
+  })
+
   test('sets version to DATA_VERSION after migration', () => {
     localStorage.setItem(MOLECULES_KEY, JSON.stringify(DEFAULTS))
 

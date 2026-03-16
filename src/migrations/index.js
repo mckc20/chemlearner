@@ -70,9 +70,44 @@ function migrateV0toV1(molecules) {
   })
 }
 
+/**
+ * v2 → v3: Fix default molecules falsely marked as _userModified.
+ * The v0→v1 migration compared all fields including 'smiles', which didn't
+ * exist in pre-v1 stored data. This caused `undefined !== 'someSmiles'` to
+ * mark untouched defaults as modified, preventing syncDefaults from updating
+ * them (leaving smiles as '' and triggering the ambiguous-formula path).
+ *
+ * Re-evaluate: if the only differences between stored and current DEFAULTS
+ * are fields that were undefined in stored data, reset _userModified to false.
+ */
+function migrateV2toV3(molecules) {
+  const defaultsMap = new Map(DEFAULTS.map(d => [d.id, d]))
+
+  return molecules.map(mol => {
+    if (!mol.id?.startsWith('default-') || mol._userModified !== true) {
+      return mol
+    }
+
+    const original = defaultsMap.get(mol.id)
+    if (!original) return mol
+
+    // Check if any field the user could have actually edited differs
+    const userEditableFields = COMPARE_FIELDS.filter(f => f !== 'smiles')
+    const hasRealEdit = userEditableFields.some(field =>
+      mol[field] !== undefined && mol[field] !== '' && mol[field] !== original[field]
+    )
+
+    if (hasRealEdit) return mol
+
+    // Only 'new' fields (like smiles) differed — reset the flag
+    return { ...mol, _userModified: false }
+  })
+}
+
 // Registry of version-specific migrations. Key = version they migrate TO.
 const MIGRATIONS = {
   1: migrateV0toV1,
+  3: migrateV2toV3,
 }
 
 /**
