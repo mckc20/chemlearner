@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { resolveMolecule } from '../services/pubchem'
 import { smilesToSvg } from '../services/rdkit'
 import FormulaDisplay from './FormulaDisplay'
+import MoleculeFacts from './MoleculeFacts'
 
 export default function MoleculeViewer({ molecule, onClose }) {
   const viewerRef = useRef(null)
@@ -95,7 +96,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <div>
@@ -147,6 +148,13 @@ export default function MoleculeViewer({ molecule, onClose }) {
             )}
           </div>
         </div>
+
+        {/* Molecule facts */}
+        {molecule.id && (
+          <div className="px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+            <MoleculeFacts moleculeId={molecule.id} />
+          </div>
+        )}
 
         {/* Two-panel viewer area */}
         <div className="flex flex-col md:flex-row w-full">
