@@ -1,3 +1,19 @@
+const TYPE_LABELS = {
+  'formula-from-name': 'Identify formula',
+  'name-from-formula': 'Identify name',
+  'name-from-structure': 'Identify name from structure',
+  'category-from-structure': 'Identify category from structure',
+  'structure-from-name': 'Identify structure',
+  'general-knowledge': 'General knowledge',
+  // legacy types
+  'name': 'Identify name',
+  'formula': 'Identify formula',
+}
+
+function typeLabel(type) {
+  return TYPE_LABELS[type] || type
+}
+
 export default function QuizResults({ questions, answers, onExit, onRetry, onPracticeMistakes }) {
   const score = answers.filter((a, i) => a === questions[i].correctIndex).length
   const total = questions.length
@@ -34,11 +50,13 @@ export default function QuizResults({ questions, answers, onExit, onRetry, onPra
                 {correct ? '✓' : '✗'}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{q.moleculeName}</p>
+                <p className="text-sm font-medium truncate">
+                  {q.type === 'general-knowledge' ? q.prompt : q.moleculeName}
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {q.type === 'name' ? 'Identify name' : 'Identify formula'}
+                  {typeLabel(q.type)}
                   {!correct && answers[i] != null && (
-                    <> — Your answer: {q.type === 'formula' ? q.options[answers[i]] : q.options[answers[i]]}</>
+                    <> — Your answer: {typeof q.options[answers[i]] === 'string' ? q.options[answers[i]] : q.options[answers[i]]?.name}</>
                   )}
                   {answers[i] == null && ' — Skipped'}
                 </p>

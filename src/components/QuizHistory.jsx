@@ -1,6 +1,18 @@
 import { useState } from 'react'
 import FormulaDisplay from './FormulaDisplay'
 
+const TYPE_LABELS = {
+  'formula-from-name': 'Formula from Name',
+  'name-from-formula': 'Name from Formula',
+  'name-from-structure': 'Name from Structure',
+  'category-from-structure': 'Category from Structure',
+  'structure-from-name': 'Structure from Name',
+  'general-knowledge': 'General Knowledge',
+  // legacy types
+  'name': 'Name',
+  'formula': 'Formula',
+}
+
 export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPracticeMistakes, allMolecules }) {
   const [expandedId, setExpandedId] = useState(null)
 
@@ -74,7 +86,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                     })}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {quiz.total} questions · {pct}%
+                    {quiz.total} questions · {pct}%{quiz.quizType ? ` · ${TYPE_LABELS[quiz.quizType] || quiz.quizType}` : ''}
                   </p>
                 </div>
               </div>
@@ -93,10 +105,12 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                         <span className={correct ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                           {correct ? '✓' : '✗'}
                         </span>
-                        <span className="font-medium">{q.moleculeName}</span>
+                        <span className="font-medium">
+                          {q.type === 'general-knowledge' ? (q.prompt || q.moleculeName) : q.moleculeName}
+                        </span>
                         <span className="text-gray-400">·</span>
                         <span className="text-gray-500 dark:text-gray-400">
-                          {q.type === 'name' ? 'Name' : 'Formula'}
+                          {TYPE_LABELS[q.type] || q.type}
                         </span>
                         {!correct && q.userAnswer != null && (
                           <>
