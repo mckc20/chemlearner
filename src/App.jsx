@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useMoleculeLibrary } from './hooks/useMoleculeLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
+import { useQuizQuestions } from './hooks/useQuizQuestions'
 import MoleculeList from './components/MoleculeList'
 import CSVUploader from './components/CSVUploader'
 import MoleculeViewer from './components/MoleculeViewer'
 import EditMoleculeModal from './components/EditMoleculeModal'
 import AddMoleculeModal from './components/AddMoleculeModal'
 import CompareModal from './components/CompareModal'
+import QuizSetup from './components/QuizSetup'
 import QuizMode from './components/QuizMode'
 import QuizHistory from './components/QuizHistory'
 import './index.css'
@@ -14,13 +16,15 @@ import './index.css'
 export default function App() {
   const { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
+  const { getQuestionsForMolecules } = useQuizQuestions()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
   const [viewedMolecule, setViewedMolecule] = useState(null)
   const [editingMolecule, setEditingMolecule] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [activeView, setActiveView] = useState('library') // 'library' | 'quiz' | 'history'
+  const [activeView, setActiveView] = useState('library') // 'library' | 'quiz-setup' | 'quiz' | 'history'
   const [quizMolecules, setQuizMolecules] = useState([])
+  const [quizConfig, setQuizConfig] = useState(null)
   const [quizKey, setQuizKey] = useState(0) // force remount on retry
   const [showCompare, setShowCompare] = useState(false)
 
@@ -33,8 +37,13 @@ export default function App() {
     })
   }
 
-  function startQuiz(mols) {
+  function startQuizSetup(mols) {
     setQuizMolecules(mols)
+    setActiveView('quiz-setup')
+  }
+
+  function handleQuizSetupStart(config) {
+    setQuizConfig(config)
     setQuizKey(k => k + 1)
     setActiveView('quiz')
   }
@@ -74,25 +83,30 @@ export default function App() {
 
   function handleStartQuiz() {
     const selected = molecules.filter(m => selectedIds.has(m.id))
-    startQuiz(selected)
+    startQuizSetup(selected)
   }
 
   function handleQuizExit(action, mols) {
     if (action === 'retry') {
-      startQuiz(mols)
+      // Reuse existing quizConfig — skip setup screen
+      setQuizMolecules(mols)
+      setQuizKey(k => k + 1)
+      setActiveView('quiz')
     } else if (action === 'practice') {
-      startQuiz(mols)
+      setQuizMolecules(mols)
+      setQuizKey(k => k + 1)
+      setActiveView('quiz')
     } else {
       setActiveView('library')
     }
   }
 
   function handleHistoryRetry(mols) {
-    startQuiz(mols)
+    startQuizSetup(mols)
   }
 
   function handleHistoryPracticeMistakes(mols) {
-    startQuiz(mols)
+    startQuizSetup(mols)
   }
 
   const navItems = [
@@ -124,7 +138,7 @@ export default function App() {
                 key={item.key}
                 onClick={() => setActiveView(item.key)}
                 className={`${
-                  activeView === item.key || (activeView === 'quiz' && item.key === 'library')
+                  activeView === item.key || ((activeView === 'quiz' || activeView === 'quiz-setup') && item.key === 'library')
                     ? 'text-gray-900 dark:text-gray-100 font-medium'
                     : 'hover:text-gray-700 dark:hover:text-gray-300'
                 } transition-colors`}
@@ -201,12 +215,25 @@ export default function App() {
           </>
         )}
 
+        {/* Quiz setup view */}
+        {activeView === 'quiz-setup' && (
+          <QuizSetup
+            quizMolecules={quizMolecules}
+            allMolecules={molecules}
+            availableGKCount={getQuestionsForMolecules(quizMolecules.map(m => m.id)).length}
+            onStart={handleQuizSetupStart}
+            onCancel={() => setActiveView('library')}
+          />
+        )}
+
         {/* Quiz view */}
         {activeView === 'quiz' && (
           <QuizMode
             key={quizKey}
             quizMolecules={quizMolecules}
             allMolecules={molecules}
+            quizConfig={quizConfig}
+            getQuestionsForMolecules={getQuestionsForMolecules}
             onExit={handleQuizExit}
             onSave={saveQuiz}
           />
