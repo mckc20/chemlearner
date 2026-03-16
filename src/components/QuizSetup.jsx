@@ -3,9 +3,9 @@ import { useState } from 'react'
 const QUIZ_TYPES = [
   { id: 'formula-from-name', label: 'Formula from Name', description: 'See a molecule name, pick the correct formula', needsMolecules: true },
   { id: 'name-from-formula', label: 'Name from Formula', description: 'See a formula, pick the correct name', needsMolecules: true },
-  { id: 'name-from-structure', label: 'Name from Structure', description: 'See a 3D model, pick the correct name', needsMolecules: true },
-  { id: 'structure-from-name', label: 'Structure from Name', description: 'See a molecule name, pick the correct 3D structure', needsMolecules: true },
-  { id: 'category-from-structure', label: 'Category from Structure', description: 'See a 3D model, pick the correct category', needsMolecules: true },
+  { id: 'name-from-structure', label: 'Name from Structure', description: 'See a 2D structure, pick the correct name', needsMolecules: true },
+  { id: 'structure-from-name', label: 'Structure from Name', description: 'See a molecule name, pick the correct 2D structure', needsMolecules: true },
+  { id: 'category-from-structure', label: 'Category from Structure', description: 'See a 2D structure, pick the correct category', needsMolecules: true },
   { id: 'general-knowledge', label: 'General Knowledge', description: 'Answer trivia questions about selected molecules', needsMolecules: false },
 ]
 
@@ -15,9 +15,11 @@ export default function QuizSetup({ quizMolecules, allMolecules, availableGKCoun
 
   const selected = QUIZ_TYPES.find(t => t.id === quizType)
   const isGK = quizType === 'general-knowledge'
+  const moleculeLimit = quizMolecules.length
   const maxQuestions = isGK
     ? Math.min(10, availableGKCount)
-    : 10
+    : Math.min(10, moleculeLimit)
+  const isLimitedBySelection = !isGK && moleculeLimit < 10
 
   const effectiveCount = questionCount == null
     ? maxQuestions
@@ -77,6 +79,9 @@ export default function QuizSetup({ quizMolecules, allMolecules, availableGKCoun
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Number of Questions: <span className="text-blue-600 dark:text-blue-400">{effectiveCount}</span>
+          {isLimitedBySelection && (
+            <span className="text-xs text-amber-600 dark:text-amber-400 font-normal"> (only {moleculeLimit} molecule{moleculeLimit !== 1 ? 's' : ''} selected)</span>
+          )}
         </label>
         <input
           type="range"
