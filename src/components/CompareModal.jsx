@@ -4,7 +4,7 @@ import { smilesToSvg } from '../services/rdkit'
 import FormulaDisplay from './FormulaDisplay'
 import MoleculeFacts from './MoleculeFacts'
 
-function MoleculeStructure({ mol }) {
+export function MoleculeStructure({ mol, onAmbiguous }) {
   const viewerRef = useRef(null)
   const viewerInstanceRef = useRef(null)
   const [status, setStatus] = useState('loading')
@@ -21,6 +21,7 @@ function MoleculeStructure({ mol }) {
         const result = await resolveMolecule(mol.formula, mol.smiles)
         if (cancelled) return
         molblockRef.current = result.molblock
+        if (result.isAmbiguous && onAmbiguous) onAmbiguous(true)
         setStatus('ready')
 
         if (result.smiles) {
@@ -132,7 +133,7 @@ function MoleculeStructure({ mol }) {
   )
 }
 
-const detailFields = [
+export const detailFields = [
   { label: 'Category', key: 'category' },
   { label: 'Information', key: 'information' },
   { label: 'SMILES', key: 'smiles', mono: true },
