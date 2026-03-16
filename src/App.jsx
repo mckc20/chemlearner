@@ -262,16 +262,19 @@ export default function App() {
         />
       )}
 
-      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 text-center text-xs text-gray-400 dark:text-gray-500">
-        A joint{' '}
-        <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
-        ,{' '}
-        <a href="https://github.com/rafacm" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">rafacm</a>
-        {' '}and{' '}
-        <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">Claude</a>
-        {' '}production.
-        {' | '}
-        Source code available in <a href="https://github.com/mckc20/chemlearner" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>.
+      <footer className="mt-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 text-center text-xs text-gray-400 dark:text-gray-500">
+        <div>
+          A joint{' '}
+          <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
+          ,{' '}
+          <a href="https://github.com/rafacm" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">rafacm</a>
+          {' '}and{' '}
+          <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">Claude Code</a>
+          {' '}production.
+        </div>
+        <div>
+          Source code available in <a href="https://github.com/mckc20/chemlearner" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>.
+        </div>
       </footer>
     </div>
   )
