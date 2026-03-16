@@ -1,4 +1,4 @@
-export const DATA_VERSION = 2
+export const DATA_VERSION = 3
 
 export const DEFAULTS = [
   {
@@ -32,7 +32,7 @@ export const DEFAULTS = [
     wikipediaUrl: 'https://en.wikipedia.org/wiki/Calcium_hydroxide',
     pubchemUrl: 'https://pubchem.ncbi.nlm.nih.gov/compound/6093208',
     wikidataId: 'Q182849',
-    smiles: '[Ca](O)O',
+    smiles: '[OH-].[OH-].[Ca+2]',
   },
   {
     id: 'default-4',
