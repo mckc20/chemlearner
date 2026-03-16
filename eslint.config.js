@@ -8,7 +8,7 @@ export default [
     plugins: { react: reactPlugin },
     languageOptions: {
       parserOptions: { ecmaFeatures: { jsx: true } },
-      globals: { window: true, document: true, localStorage: true, console: true },
+      globals: { window: true, document: true, localStorage: true, console: true, __APP_VERSION__: 'readonly', __BUILD_TIME__: 'readonly' },
     },
     settings: { react: { version: 'detect' } },
     rules: {
