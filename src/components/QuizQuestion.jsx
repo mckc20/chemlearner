@@ -1,26 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { smilesToSvg } from '../services/rdkit'
 import { resolveMolecule } from '../services/pubchem'
 import FormulaDisplay from './FormulaDisplay'
 
 const TEXT_ONLY_TYPES = ['formula-from-name', 'name-from-formula', 'general-knowledge']
 const STRUCTURE_PROMPT_TYPES = ['name-from-structure', 'category-from-structure']
 
-function MiniViewer({ formula, smiles, size = 150, selected, correct, wrong, disabled, onClick }) {
-  const viewerRef = useRef(null)
-  const viewerInstanceRef = useRef(null)
-  const molblockRef = useRef(null)
+function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, disabled, onClick }) {
   const [status, setStatus] = useState('loading')
+  const [svg, setSvg] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     setStatus('loading')
-    molblockRef.current = null
 
     async function resolve() {
       try {
-        const result = await resolveMolecule(formula, smiles)
+        let smi = smiles
+        if (!smi) {
+          const result = await resolveMolecule(formula)
+          smi = result.smiles
+        }
+        const svgMarkup = await smilesToSvg(smi, size, size)
         if (cancelled) return
-        molblockRef.current = result.molblock
+        setSvg(svgMarkup)
         setStatus('ready')
       } catch {
         if (!cancelled) setStatus('error')
@@ -29,25 +32,7 @@ function MiniViewer({ formula, smiles, size = 150, selected, correct, wrong, dis
 
     resolve()
     return () => { cancelled = true }
-  }, [formula, smiles])
-
-  useEffect(() => {
-    if (status !== 'ready' || !viewerRef.current || !molblockRef.current) return
-
-    const viewer = window.$3Dmol.createViewer(viewerRef.current, {
-      backgroundColor: 'white',
-    })
-    viewer.addModel(molblockRef.current, 'sdf')
-    viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } })
-    viewer.zoomTo({}, 0.8)
-    viewer.render()
-    viewerInstanceRef.current = viewer
-
-    return () => {
-      viewer.clear()
-      viewerInstanceRef.current = null
-    }
-  }, [status])
+  }, [formula, smiles, size])
 
   let borderClass = 'border-gray-200 dark:border-gray-700'
   if (correct) borderClass = 'border-green-500 ring-1 ring-green-500'
@@ -58,7 +43,7 @@ function MiniViewer({ formula, smiles, size = 150, selected, correct, wrong, dis
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative rounded-lg border-2 ${borderClass} overflow-hidden bg-white dark:bg-gray-800 transition-colors ${
+      className={`relative rounded-lg border-2 ${borderClass} overflow-hidden bg-white transition-colors ${
         disabled ? '' : 'hover:border-blue-400 cursor-pointer'
       }`}
       style={{ width: size, height: size }}
@@ -73,27 +58,26 @@ function MiniViewer({ formula, smiles, size = 150, selected, correct, wrong, dis
           Error
         </div>
       )}
-      <div
-        ref={viewerRef}
-        className="w-full h-full"
-        style={{ visibility: status === 'ready' ? 'visible' : 'hidden' }}
-      />
+      {status === 'ready' && svg && (
+        <div
+          className="w-full h-full"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      )}
     </button>
   )
 }
 
 export default function QuizQuestion({ question, onAnswer, userAnswer, phase, onNext }) {
-  const viewerRef = useRef(null)
-  const viewerInstanceRef = useRef(null)
-  const molblockRef = useRef(null)
   const [status, setStatus] = useState('loading')
   const [errorMsg, setErrorMsg] = useState('')
+  const [svg, setSvg] = useState(null)
 
   const isTextOnly = TEXT_ONLY_TYPES.includes(question.type)
   const isStructurePrompt = STRUCTURE_PROMPT_TYPES.includes(question.type)
   const isStructureOptions = question.type === 'structure-from-name'
 
-  // Resolve molecule formula → SDF molblock (only for structure-prompt types)
+  // Resolve molecule SMILES → RDKit 2D SVG (only for structure-prompt types)
   useEffect(() => {
     if (!isStructurePrompt) {
       setStatus('ready')
@@ -102,13 +86,18 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
     let cancelled = false
     setStatus('loading')
     setErrorMsg('')
-    molblockRef.current = null
+    setSvg(null)
 
     async function resolve() {
       try {
-        const result = await resolveMolecule(question.moleculeFormula, question.moleculeSmiles)
+        let smi = question.moleculeSmiles
+        if (!smi) {
+          const result = await resolveMolecule(question.moleculeFormula)
+          smi = result.smiles
+        }
+        const svgMarkup = await smilesToSvg(smi, 400, 400)
         if (cancelled) return
-        molblockRef.current = result.molblock
+        setSvg(svgMarkup)
         setStatus('ready')
       } catch (err) {
         if (!cancelled) {
@@ -121,39 +110,6 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
     resolve()
     return () => { cancelled = true }
   }, [question.moleculeFormula, question.moleculeSmiles, isStructurePrompt])
-
-  // Mount 3Dmol.js viewer (only for structure-prompt types)
-  useEffect(() => {
-    if (!isStructurePrompt || status !== 'ready' || !viewerRef.current || !molblockRef.current) return
-
-    const viewer = window.$3Dmol.createViewer(viewerRef.current, {
-      backgroundColor: 'white',
-    })
-    viewer.addModel(molblockRef.current, 'sdf')
-    viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } })
-    viewer.zoomTo({}, 0.8)
-    viewer.render()
-    viewerInstanceRef.current = viewer
-
-    return () => {
-      viewer.clear()
-      viewerInstanceRef.current = null
-    }
-  }, [status, isStructurePrompt])
-
-  // ResizeObserver (only for structure-prompt types)
-  useEffect(() => {
-    if (!isStructurePrompt || !viewerRef.current || !viewerInstanceRef.current) return
-    const el = viewerRef.current
-    const observer = new ResizeObserver(() => {
-      if (viewerInstanceRef.current) {
-        viewerInstanceRef.current.resize()
-        viewerInstanceRef.current.render()
-      }
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [status, isStructurePrompt])
 
   function getButtonClass(index) {
     const base = 'w-full text-left px-4 py-3 rounded-lg border text-sm font-medium transition-colors'
@@ -199,17 +155,17 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
         )}
       </div>
 
-      {/* 3D Viewer (for structure-prompt types) */}
+      {/* 2D Structure SVG (for structure-prompt types) */}
       {isStructurePrompt && (
-        <div className="relative w-full h-64 sm:h-80 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        <div className="relative w-full h-64 sm:h-80 rounded-lg border border-gray-200 dark:border-gray-700 bg-white overflow-hidden flex items-center justify-center">
           {status === 'loading' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
               Loading molecule…
             </div>
           )}
           {status === 'error' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
+            <div className="flex flex-col items-center justify-center gap-2 px-6 text-center">
               <p className="text-sm font-medium text-red-600 dark:text-red-400">Could not load structure</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">{errorMsg}</p>
               <button
@@ -220,11 +176,12 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
               </button>
             </div>
           )}
-          <div
-            ref={viewerRef}
-            className="w-full h-full"
-            style={{ visibility: status === 'ready' ? 'visible' : 'hidden' }}
-          />
+          {status === 'ready' && svg && (
+            <div
+              className="w-full h-full [&>svg]:w-full [&>svg]:h-full"
+              dangerouslySetInnerHTML={{ __html: svg }}
+            />
+          )}
         </div>
       )}
 
@@ -252,11 +209,11 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
       {isStructureOptions && (
         <div className="grid grid-cols-2 gap-3 justify-items-center">
           {question.options.map((optMol, index) => (
-            <MiniViewer
+            <MiniStructure
               key={optMol.id}
               formula={optMol.formula}
               smiles={optMol.smiles}
-              size={150}
+              size={200}
               selected={userAnswer === index && phase === 'question'}
               correct={phase === 'feedback' && index === question.correctIndex}
               wrong={phase === 'feedback' && index === userAnswer && index !== question.correctIndex}
