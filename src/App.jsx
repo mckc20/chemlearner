@@ -302,6 +302,10 @@ export default function App() {
         <div>
           Source code available in <a href="https://github.com/mckc20/chemlearner" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>.
         </div>
+        <div className="mt-1 text-gray-300 dark:text-gray-600">
+          Version {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'}{' '}
+          {typeof __BUILD_TIME__ !== 'undefined' && `built ${new Date(__BUILD_TIME__).toLocaleString('sv-SE', { timeZone: 'Europe/Vienna', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(' ', ' ')} (Vienna, Austria)`}
+        </div>
       </footer>
     </div>
   )

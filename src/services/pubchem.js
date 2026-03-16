@@ -1,4 +1,6 @@
 const CACHE_PREFIX = 'pubchem_cache_'
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'
 const MIN_REQUEST_INTERVAL_MS = 200
 const POLL_INTERVAL_MS = 1000
 const MAX_POLL_ATTEMPTS = 30
@@ -117,8 +119,9 @@ export async function resolveMolecule(formula, smiles) {
   const cached = localStorage.getItem(cacheKey)
   if (cached) {
     const parsed = JSON.parse(cached)
-    // Invalidate cache entries missing required fields (e.g. cid, smiles)
-    if (parsed.cid != null && parsed.smiles) {
+    const isExpired = !parsed.cachedAt || (Date.now() - parsed.cachedAt > CACHE_TTL_MS)
+    const isStaleVersion = parsed.appVersion !== APP_VERSION
+    if (!isExpired && !isStaleVersion && parsed.cid != null && parsed.smiles) {
       return parsed
     }
     localStorage.removeItem(cacheKey)
@@ -172,6 +175,8 @@ export async function resolveMolecule(formula, smiles) {
     molblock,
     smiles: resolvedSmiles,
     isAmbiguous,
+    cachedAt: Date.now(),
+    appVersion: APP_VERSION,
   }
 
   localStorage.setItem(cacheKey, JSON.stringify(result))
