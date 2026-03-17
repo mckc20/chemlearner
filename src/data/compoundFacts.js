@@ -1,7 +1,7 @@
 // Facts derived from quiz questions and their correct answers.
-// Keyed by moleculeId → array of fact strings.
+// Keyed by compoundId → array of fact strings.
 
-export const MOLECULE_FACTS = {
+export const COMPOUND_FACTS = {
   // Acetic Acid (default-1)
   'default-1': [
     'The typical concentration of acetic acid in household table vinegar is 5-8%.',

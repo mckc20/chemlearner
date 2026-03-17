@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { MOLECULE_FACTS } from '../data/moleculeFacts'
+import { COMPOUND_FACTS } from '../data/compoundFacts'
 
-export default function MoleculeFacts({ moleculeId, compact = false }) {
-  const facts = MOLECULE_FACTS[moleculeId]
+export default function CompoundFacts({ compoundId, compact = false }) {
+  const facts = COMPOUND_FACTS[compoundId]
   const [expanded, setExpanded] = useState(false)
 
   if (!facts || facts.length === 0) return null

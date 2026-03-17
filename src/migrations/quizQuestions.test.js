@@ -87,7 +87,7 @@ describe('runQuizQuestionsMigrations', () => {
     const partial = stored.find(q => q.id === 'custom-1')
     expect(partial.options).toEqual([])
     expect(partial.correctIndex).toBe(0)
-    expect(partial.moleculeId).toBe('')
+    expect(partial.compoundId).toBe('')
   })
 
   test('sets version to QUIZ_QUESTIONS_VERSION after migration', () => {

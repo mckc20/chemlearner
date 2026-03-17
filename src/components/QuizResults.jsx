@@ -51,7 +51,7 @@ export default function QuizResults({ questions, answers, onExit, onRetry, onPra
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">
-                  {q.type === 'general-knowledge' ? q.prompt : q.moleculeName}
+                  {q.type === 'general-knowledge' ? q.prompt : q.compoundName}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {typeLabel(q.type)}

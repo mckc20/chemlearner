@@ -13,7 +13,7 @@ const TYPE_LABELS = {
   'formula': 'Formula',
 }
 
-export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPracticeMistakes, allMolecules }) {
+export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPracticeMistakes, allCompounds }) {
   const [expandedId, setExpandedId] = useState(null)
 
   if (history.length === 0) {
@@ -26,11 +26,11 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
   }
 
   function handleRetry(quiz) {
-    // Find molecules that still exist in the library
-    const moleculeIds = quiz.questions.map(q => q.moleculeId)
-    const available = allMolecules.filter(m => moleculeIds.includes(m.id))
+    // Find compounds that still exist in the library
+    const compoundIds = quiz.questions.map(q => q.compoundId)
+    const available = allCompounds.filter(m => compoundIds.includes(m.id))
     if (available.length < 2) {
-      alert('Not enough molecules from this quiz remain in the library (need at least 2).')
+      alert('Not enough compounds from this quiz remain in the library (need at least 2).')
       return
     }
     onRetry(available)
@@ -39,11 +39,11 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
   function handlePracticeMistakes(quiz) {
     const mistakeIds = quiz.questions
       .filter(q => q.userAnswer !== q.correctIndex)
-      .map(q => q.moleculeId)
-    const available = allMolecules.filter(m => mistakeIds.includes(m.id))
+      .map(q => q.compoundId)
+    const available = allCompounds.filter(m => mistakeIds.includes(m.id))
     if (available.length === 0) return
     if (available.length < 2) {
-      // Single mistake molecule — still allow, distractors come from full library
+      // Single mistake compound — still allow, distractors come from full library
       onPracticeMistakes(available)
       return
     }
@@ -106,7 +106,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                           {correct ? '✓' : '✗'}
                         </span>
                         <span className="font-medium">
-                          {q.type === 'general-knowledge' ? (q.prompt || q.moleculeName) : q.moleculeName}
+                          {q.type === 'general-knowledge' ? (q.prompt || q.compoundName) : q.compoundName}
                         </span>
                         <span className="text-gray-400">·</span>
                         <span className="text-gray-500 dark:text-gray-400">

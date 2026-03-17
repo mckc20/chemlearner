@@ -2,37 +2,37 @@
 
 ## Overview
 
-Quiz Mode tests the user's knowledge of molecules in their library. Users select 2+ molecules from the library, then answer multiple-choice questions identifying each molecule's name or formula from its 3D structure.
+Quiz Mode tests the user's knowledge of compounds in their library. Users select 2+ compounds from the library, then answer multiple-choice questions identifying each compound's name or formula from its 3D structure.
 
 ## Flow
 
-1. **Selection** — User checks molecules in the library table, clicks "Start Quiz"
-2. **Questions** — One question per selected molecule, shuffled order. Each shows:
-   - A prompt ("What is the **name/formula** of this molecule?")
+1. **Selection** — User checks compounds in the library table, clicks "Start Quiz"
+2. **Questions** — One question per selected compound, shuffled order. Each shows:
+   - A prompt ("What is the **name/formula** of this compound?")
    - An interactive 3D ball-and-stick model (3Dmol.js)
    - 2–4 multiple-choice option buttons
 3. **Feedback** — After answering, correct option highlights green, wrong highlights red. "Next" button advances.
 4. **Results** — Score summary (fraction + percentage, color-coded), per-question breakdown, and three actions:
    - **Back to Library** — returns to library view
-   - **Retry** — restarts with same molecules, reshuffled questions and options
-   - **Practice Mistakes** — starts new quiz with only incorrectly answered molecules
+   - **Retry** — restarts with same compounds, reshuffled questions and options
+   - **Practice Mistakes** — starts new quiz with only incorrectly answered compounds
 
 ## Question Generation
 
 - Question type (`name` or `formula`) is randomly chosen per question
-- If a molecule's formula is shared by another selected molecule, the question defaults to `name` type to avoid ambiguity
-- Distractors are drawn from the full molecule library (not just selected molecules), deduplicated
-- Option count adapts: 2 options for 2 molecules, 3 for 3, 4 for 4+
+- If a compound's formula is shared by another selected compound, the question defaults to `name` type to avoid ambiguity
+- Distractors are drawn from the full compound library (not just selected compounds), deduplicated
+- Option count adapts: 2 options for 2 compounds, 3 for 3, 4 for 4+
 
 ## Quiz History
 
 Completed quizzes are automatically saved to `localStorage` (key: `chemlearner_quiz_history`) and viewable in the "Quiz History" tab. Each entry shows:
 
 - Date, score, question count
-- Expandable per-question breakdown with molecule name, question type, user answer vs correct answer
+- Expandable per-question breakdown with compound name, question type, user answer vs correct answer
 - Actions: Retry, Practice Mistakes, Delete
 
-If molecules have been deleted from the library since a quiz was taken, retry/practice-mistakes filters them out and warns if fewer than 2 remain.
+If compounds have been deleted from the library since a quiz was taken, retry/practice-mistakes filters them out and warns if fewer than 2 remain.
 
 ## Files
 
@@ -53,7 +53,7 @@ If molecules have been deleted from the library since a quiz was taken, retry/pr
   score: number,
   total: number,
   questions: [{
-    moleculeId, moleculeName, moleculeFormula,
+    compoundId, compoundName, compoundFormula,
     type: 'name' | 'formula',
     options: string[],
     correctIndex: number,
@@ -66,5 +66,5 @@ If molecules have been deleted from the library since a quiz was taken, retry/pr
 
 - **PubChem fetch failure**: shows error with "Skip" button (counts as unanswered)
 - **Exit mid-quiz**: returns to library, quiz is NOT saved
-- **Retry with deleted molecules**: filters them out; shows alert if < 2 remain
-- **Single mistake**: Practice Mistakes works with 1 molecule (distractors from full library)
+- **Retry with deleted compounds**: filters them out; shows alert if < 2 remain
+- **Single mistake**: Practice Mistakes works with 1 compound (distractors from full library)

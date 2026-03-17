@@ -114,7 +114,7 @@ async function resolveBySmiles(smiles) {
  * @param {string} [smiles] - Optional SMILES string for exact lookup
  * @returns {{ molblock: string, smiles: string, isAmbiguous: boolean }}
  */
-export async function resolveMolecule(formula, smiles) {
+export async function resolveCompound(formula, smiles) {
   const cacheKey = CACHE_PREFIX + (smiles || formula)
   const cached = localStorage.getItem(cacheKey)
   if (cached) {

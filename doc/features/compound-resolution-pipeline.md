@@ -1,8 +1,8 @@
-# Molecular Resolution Pipeline
+# Compound Resolution Pipeline
 
 ## Overview
 
-Resolves chemical formulas into interactive 3D molecular visualizations using PubChem and 3Dmol.js.
+Resolves chemical formulas into interactive 3D visualizations using PubChem and 3Dmol.js.
 
 ## Pipeline
 
@@ -13,7 +13,7 @@ Formula → PubChem API (async formula search) → CID → SDF molblock → 3Dmo
 ## Key Files
 
 - `src/services/pubchem.js` — PubChem PUG REST integration
-- `src/components/MoleculeViewer.jsx` — Modal viewer with 3Dmol.js rendering
+- `src/components/CompoundViewer.jsx` — Modal viewer with 3Dmol.js rendering
 
 ## PubChem Integration (`pubchem.js`)
 
@@ -24,7 +24,7 @@ Formula → PubChem API (async formula search) → CID → SDF molblock → 3Dmo
 - **Caching**: Results cached in `localStorage` with `pubchem_cache_` prefix.
 - **Ambiguity detection**: Sets `isAmbiguous: true` when multiple compounds match a formula.
 
-## Dual-Panel Viewer (`MoleculeViewer.jsx`)
+## Dual-Panel Viewer (`CompoundViewer.jsx`)
 
 - Modal overlay with two side-by-side panels (stacked on mobile):
   - **Left panel — 2D Skeletal Formula**: Displays a 2D structure PNG fetched from PubChem's image API (`/rest/pug/compound/cid/{CID}/PNG`). Uses CSS `dark:invert` to handle dark mode for the black-on-white line art.
@@ -32,11 +32,11 @@ Formula → PubChem API (async formula search) → CID → SDF molblock → 3Dmo
 - Displays ambiguity warning banner when formula matches multiple isomers.
 - Close via Escape key or clicking outside the modal.
 - Shows loading spinner during resolution, error state on failure.
-- The `resolveMolecule` function returns `cid` alongside `molblock` and `smiles` to enable the 2D image fetch.
+- The `resolveCompound` function returns `cid` alongside `molblock` and `smiles` to enable the 2D image fetch.
 
-## Verified Molecules
+## Verified Compounds
 
-| Molecule | Formula | 3D/2D | Notes |
+| Compound | Formula | 3D/2D | Notes |
 |---|---|---|---|
 | Water | H2O | 3D | Red O + white H |
 | Sulphuric Acid | H2SO4 | 3D | Yellow S center |

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-ChemLearner 3D is a React web app for managing chemical molecule libraries, visualizing molecules in interactive 3D, and testing knowledge via quizzes. Deployed on Netlify.
+ChemLearner 3D is a React web app for managing chemical compound libraries, visualizing compounds in interactive 3D, and testing knowledge via quizzes. Deployed on Netlify.
 
 ## Tech Stack
 
@@ -13,7 +13,7 @@ ChemLearner 3D is a React web app for managing chemical molecule libraries, visu
 | Framework | React (Vite) |
 | Styling | Tailwind CSS (auto dark/light via `prefers-color-scheme`) |
 | 3D Rendering | 3Dmol.js |
-| Molecule Data | PubChem PUG REST (SDF molblocks fetched directly — no RDKit/WASM needed) |
+| Compound Data | PubChem PUG REST (SDF molblocks fetched directly — no RDKit/WASM needed) |
 | CSV Parsing | PapaParse |
 | External API | PubChem PUG REST — no API key required; rate limit: 5 req/s, 400 req/min |
 | Persistence | Browser `localStorage` |
@@ -36,17 +36,17 @@ npm test -- <file>   # Run a single test file
 Three core modules:
 
 **1. Library Management**
-- Pre-loaded molecules: Water, Sulphuric Acid, Salt, Nitroglycerin
+- Pre-loaded compounds: Water, Sulphuric Acid, Salt, Nitroglycerin
 - CSV upload (PapaParse); validate for missing fields and duplicate Name/Formula
 - All changes persisted to `localStorage`
 
-**2. Molecular Resolution Pipeline**
+**2. Compound Resolution Pipeline**
 Formula → PubChem API (async search → CID → SDF molblock) → 3Dmol.js (interactive render)
 - 3D SDF preferred; falls back to 2D SDF for ionic compounds (e.g., NaCl)
 - If PubChem returns multiple isomers, display: *"The formula [X] is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results."*
 
 **3. Quiz Mode**
-- User selects molecules via checkboxes in list view, then clicks "Start Quiz"
+- User selects compounds via checkboxes in list view, then clicks "Start Quiz"
 - Displays rotatable 3D model; user identifies Name or Formula from multiple-choice options
 
 ## CSV Data Schema

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { resolveMolecule } from '../services/pubchem'
+import { resolveCompound } from '../services/pubchem'
 import { smilesToSvg } from '../services/rdkit'
 import FormulaDisplay from './FormulaDisplay'
-import MoleculeFacts from './MoleculeFacts'
+import CompoundFacts from './CompoundFacts'
 
-export function MoleculeStructure({ mol, onAmbiguous }) {
+export function CompoundStructure({ mol, onAmbiguous }) {
   const viewerRef = useRef(null)
   const viewerInstanceRef = useRef(null)
   const [status, setStatus] = useState('loading')
@@ -18,7 +18,7 @@ export function MoleculeStructure({ mol, onAmbiguous }) {
 
     async function resolve() {
       try {
-        const result = await resolveMolecule(mol.formula, mol.smiles)
+        const result = await resolveCompound(mol.formula, mol.smiles)
         if (cancelled) return
         molblockRef.current = result.molblock
         if (result.isAmbiguous && onAmbiguous) onAmbiguous(true)
@@ -139,7 +139,7 @@ export const detailFields = [
   { label: 'SMILES', key: 'smiles', mono: true },
 ]
 
-function MoleculeCard({ mol }) {
+function CompoundCard({ mol }) {
   return (
     <div className="flex-1 min-w-0 space-y-3">
       <div>
@@ -149,7 +149,7 @@ function MoleculeCard({ mol }) {
         </p>
       </div>
 
-      <MoleculeStructure mol={mol} />
+      <CompoundStructure mol={mol} />
 
       {detailFields.map(({ label, key, mono }) => (
         <div key={key}>
@@ -164,7 +164,7 @@ function MoleculeCard({ mol }) {
         </div>
       ))}
 
-      {mol.id && <MoleculeFacts moleculeId={mol.id} compact />}
+      {mol.id && <CompoundFacts compoundId={mol.id} compact />}
 
       <div>
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Links</p>
@@ -186,7 +186,7 @@ function MoleculeCard({ mol }) {
   )
 }
 
-export default function CompareModal({ molecules, onClose }) {
+export default function CompareModal({ compounds, onClose }) {
   useEffect(() => {
     function handleKey(e) {
       if (e.key === 'Escape') onClose()
@@ -195,7 +195,7 @@ export default function CompareModal({ molecules, onClose }) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
-  const [molA, molB] = molecules
+  const [compA, compB] = compounds
 
   return (
     <div
@@ -205,7 +205,7 @@ export default function CompareModal({ molecules, onClose }) {
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">Compare Molecules</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">Compare Compounds</h2>
           <button
             onClick={onClose}
             aria-label="Close comparison"
@@ -217,10 +217,10 @@ export default function CompareModal({ molecules, onClose }) {
 
         {/* Side-by-side cards */}
         <div className="flex flex-col md:flex-row gap-6 p-5 max-h-[80vh] overflow-y-auto">
-          <MoleculeCard mol={molA} />
+          <CompoundCard mol={compA} />
           <div className="hidden md:block w-px bg-gray-200 dark:bg-gray-700 self-stretch" />
           <hr className="md:hidden border-gray-200 dark:border-gray-700" />
-          <MoleculeCard mol={molB} />
+          <CompoundCard mol={compB} />
         </div>
       </div>
     </div>

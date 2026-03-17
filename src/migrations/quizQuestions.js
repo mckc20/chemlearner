@@ -38,7 +38,7 @@ function loadDeletedDefaults() {
 }
 
 // Fields to compare when checking if a question was user-modified
-const COMPARE_FIELDS = ['question', 'options', 'correctIndex', 'moleculeId']
+const COMPARE_FIELDS = ['question', 'options', 'correctIndex', 'compoundId']
 
 // Registry of version-specific migrations. Key = version they migrate TO.
 const MIGRATIONS = {
@@ -79,7 +79,7 @@ function backfillSchemaFields(questions) {
     question: '',
     options: [],
     correctIndex: 0,
-    moleculeId: '',
+    compoundId: '',
   }
 
   return questions.map(q => {

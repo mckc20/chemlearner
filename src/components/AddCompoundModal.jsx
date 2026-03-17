@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function AddMoleculeModal({ onAdd, onCancel }) {
+export default function AddCompoundModal({ onAdd, onCancel }) {
   const [name, setName] = useState('')
   const [formula, setFormula] = useState('')
   const [category, setCategory] = useState('')
@@ -32,7 +32,7 @@ export default function AddMoleculeModal({ onAdd, onCancel }) {
         className="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md mx-4 p-6 max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-4">Add Molecule</h2>
+        <h2 className="text-lg font-semibold mb-4">Add Compound</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="add-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
@@ -74,7 +74,7 @@ export default function AddMoleculeModal({ onAdd, onCancel }) {
               value={information}
               onChange={e => setInformation(e.target.value)}
               rows={3}
-              placeholder="Educational context about the molecule"
+              placeholder="Educational context about the compound"
               className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
           </div>

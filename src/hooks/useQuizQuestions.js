@@ -27,14 +27,14 @@ export function useQuizQuestions() {
     return stored ?? DEFAULT_QUIZ_QUESTIONS
   })
 
-  const getQuestionsForMolecule = useCallback((moleculeId) => {
-    return questions.filter(q => q.moleculeId === moleculeId)
+  const getQuestionsForCompound = useCallback((compoundId) => {
+    return questions.filter(q => q.compoundId === compoundId)
   }, [questions])
 
-  const getQuestionsForMolecules = useCallback((moleculeIds) => {
-    const idSet = new Set(moleculeIds)
-    return questions.filter(q => idSet.has(q.moleculeId))
+  const getQuestionsForCompounds = useCallback((compoundIds) => {
+    const idSet = new Set(compoundIds)
+    return questions.filter(q => idSet.has(q.compoundId))
   }, [questions])
 
-  return { questions, getQuestionsForMolecule, getQuestionsForMolecules }
+  return { questions, getQuestionsForCompound, getQuestionsForCompounds }
 }

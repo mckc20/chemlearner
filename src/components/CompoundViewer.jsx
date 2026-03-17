@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import FormulaDisplay from './FormulaDisplay'
-import MoleculeFacts from './MoleculeFacts'
-import { MoleculeStructure, detailFields } from './CompareModal'
+import CompoundFacts from './CompoundFacts'
+import { CompoundStructure, detailFields } from './CompareModal'
 
-export default function MoleculeViewer({ molecule, onClose }) {
+export default function CompoundViewer({ compound, onClose }) {
   const [isAmbiguous, setIsAmbiguous] = useState(false)
 
   // Close on Escape key
@@ -23,7 +23,7 @@ export default function MoleculeViewer({ molecule, onClose }) {
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">{molecule.name}</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">{compound.name}</h2>
           <button
             onClick={onClose}
             aria-label="Close viewer"
@@ -36,24 +36,24 @@ export default function MoleculeViewer({ molecule, onClose }) {
         {/* Content */}
         <div className="p-5 space-y-3 max-h-[80vh] overflow-y-auto">
           <p className="text-sm font-mono text-gray-500 dark:text-gray-400">
-            <FormulaDisplay formula={molecule.formula} />
+            <FormulaDisplay formula={compound.formula} />
           </p>
 
           {/* Ambiguity warning */}
           {isAmbiguous && (
             <div className="px-3 py-2 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-300">
-              The formula <FormulaDisplay formula={molecule.formula} /> is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results.
+              The formula <FormulaDisplay formula={compound.formula} /> is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results.
             </div>
           )}
 
-          <MoleculeStructure mol={molecule} onAmbiguous={setIsAmbiguous} />
+          <CompoundStructure mol={compound} onAmbiguous={setIsAmbiguous} />
 
           {detailFields.map(({ label, key, mono }) => (
             <div key={key}>
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</p>
-              {molecule[key] ? (
+              {compound[key] ? (
                 <p className={`text-sm text-gray-800 dark:text-gray-200 mt-0.5 ${mono ? 'font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs break-all' : ''}`}>
-                  {molecule[key]}
+                  {compound[key]}
                 </p>
               ) : (
                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 italic">--</p>
@@ -61,20 +61,20 @@ export default function MoleculeViewer({ molecule, onClose }) {
             </div>
           ))}
 
-          {molecule.id && <MoleculeFacts moleculeId={molecule.id} compact />}
+          {compound.id && <CompoundFacts compoundId={compound.id} compact />}
 
           <div>
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Links</p>
             <div className="flex flex-wrap gap-3 text-sm mt-0.5">
-              {molecule.wikipediaUrl ? (
-                <a href={molecule.wikipediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Wikipedia</a>
+              {compound.wikipediaUrl ? (
+                <a href={compound.wikipediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Wikipedia</a>
               ) : <span className="text-gray-400 dark:text-gray-500 italic">--</span>}
-              {molecule.pubchemUrl && (
-                <a href={molecule.pubchemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">PubChem</a>
+              {compound.pubchemUrl && (
+                <a href={compound.pubchemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">PubChem</a>
               )}
-              {molecule.wikidataId && (
-                <a href={`https://www.wikidata.org/wiki/${molecule.wikidataId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
-                  Wikidata ({molecule.wikidataId})
+              {compound.wikidataId && (
+                <a href={`https://www.wikidata.org/wiki/${compound.wikidataId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Wikidata ({compound.wikidataId})
                 </a>
               )}
             </div>

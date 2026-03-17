@@ -17,41 +17,41 @@ function pickDistractors(pool, correct, count = 3) {
   return unique.slice(0, count)
 }
 
-function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolecules) {
+function buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds) {
   const { quizType, questionCount } = quizConfig
 
   if (quizType === 'general-knowledge') {
-    const gkQuestions = getQuestionsForMolecules(quizMolecules.map(m => m.id))
+    const gkQuestions = getQuestionsForCompounds(quizCompounds.map(m => m.id))
     const selected = shuffle(gkQuestions).slice(0, questionCount)
-    const molMap = Object.fromEntries(quizMolecules.map(m => [m.id, m]))
+    const molMap = Object.fromEntries(quizCompounds.map(m => [m.id, m]))
     return selected.map(gk => ({
       type: 'general-knowledge',
-      moleculeId: gk.moleculeId,
-      moleculeName: molMap[gk.moleculeId]?.name ?? '',
+      compoundId: gk.compoundId,
+      compoundName: molMap[gk.compoundId]?.name ?? '',
       prompt: gk.question,
       options: gk.options,
       correctIndex: gk.correctIndex,
     }))
   }
 
-  // If questionCount exceeds available molecules, repeat molecules
-  let pool = shuffle(quizMolecules)
+  // If questionCount exceeds available compounds, repeat compounds
+  let pool = shuffle(quizCompounds)
   while (pool.length < questionCount) {
-    pool = [...pool, ...shuffle(quizMolecules)]
+    pool = [...pool, ...shuffle(quizCompounds)]
   }
   const shuffled = pool.slice(0, questionCount)
 
   return shuffled.map(mol => {
     if (quizType === 'formula-from-name') {
       const correct = mol.formula
-      const pool = allMolecules.filter(m => m.id !== mol.id).map(m => m.formula)
+      const pool = allCompounds.filter(m => m.id !== mol.id).map(m => m.formula)
       const distractors = pickDistractors(pool, correct)
       const options = shuffle([correct, ...distractors])
       return {
         type: 'formula-from-name',
-        moleculeId: mol.id,
-        moleculeName: mol.name,
-        moleculeFormula: mol.formula,
+        compoundId: mol.id,
+        compoundName: mol.name,
+        compoundFormula: mol.formula,
         prompt: mol.name,
         options,
         correctIndex: options.indexOf(correct),
@@ -60,14 +60,14 @@ function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolec
 
     if (quizType === 'name-from-formula') {
       const correct = mol.name
-      const pool = allMolecules.filter(m => m.id !== mol.id).map(m => m.name)
+      const pool = allCompounds.filter(m => m.id !== mol.id).map(m => m.name)
       const distractors = pickDistractors(pool, correct)
       const options = shuffle([correct, ...distractors])
       return {
         type: 'name-from-formula',
-        moleculeId: mol.id,
-        moleculeName: mol.name,
-        moleculeFormula: mol.formula,
+        compoundId: mol.id,
+        compoundName: mol.name,
+        compoundFormula: mol.formula,
         prompt: mol.formula,
         options,
         correctIndex: options.indexOf(correct),
@@ -76,15 +76,15 @@ function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolec
 
     if (quizType === 'name-from-structure') {
       const correct = mol.name
-      const pool = allMolecules.filter(m => m.id !== mol.id).map(m => m.name)
+      const pool = allCompounds.filter(m => m.id !== mol.id).map(m => m.name)
       const distractors = pickDistractors(pool, correct)
       const options = shuffle([correct, ...distractors])
       return {
         type: 'name-from-structure',
-        moleculeId: mol.id,
-        moleculeName: mol.name,
-        moleculeFormula: mol.formula,
-        moleculeSmiles: mol.smiles,
+        compoundId: mol.id,
+        compoundName: mol.name,
+        compoundFormula: mol.formula,
+        compoundSmiles: mol.smiles,
         prompt: null, // 3D viewer is the prompt
         options,
         correctIndex: options.indexOf(correct),
@@ -92,13 +92,13 @@ function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolec
     }
 
     if (quizType === 'structure-from-name') {
-      const others = shuffle(allMolecules.filter(m => m.id !== mol.id)).slice(0, 3)
+      const others = shuffle(allCompounds.filter(m => m.id !== mol.id)).slice(0, 3)
       const optionMols = shuffle([mol, ...others])
       return {
         type: 'structure-from-name',
-        moleculeId: mol.id,
-        moleculeName: mol.name,
-        moleculeFormula: mol.formula,
+        compoundId: mol.id,
+        compoundName: mol.name,
+        compoundFormula: mol.formula,
         prompt: mol.name,
         options: optionMols.map(m => ({ id: m.id, name: m.name, formula: m.formula, smiles: m.smiles })),
         correctIndex: optionMols.findIndex(m => m.id === mol.id),
@@ -107,15 +107,15 @@ function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolec
 
     if (quizType === 'category-from-structure') {
       const correct = mol.category || 'Unknown'
-      const allCategories = [...new Set(allMolecules.map(m => m.category || 'Unknown'))]
+      const allCategories = [...new Set(allCompounds.map(m => m.category || 'Unknown'))]
       const distractors = pickDistractors(allCategories, correct)
       const options = shuffle([correct, ...distractors])
       return {
         type: 'category-from-structure',
-        moleculeId: mol.id,
-        moleculeName: mol.name,
-        moleculeFormula: mol.formula,
-        moleculeSmiles: mol.smiles,
+        compoundId: mol.id,
+        compoundName: mol.name,
+        compoundFormula: mol.formula,
+        compoundSmiles: mol.smiles,
         prompt: null, // 3D viewer is the prompt
         options,
         correctIndex: options.indexOf(correct),
@@ -127,9 +127,9 @@ function buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolec
   }).filter(Boolean)
 }
 
-export default function QuizMode({ quizMolecules, allMolecules, quizConfig, getQuestionsForMolecules, onExit, onSave }) {
+export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds, onExit, onSave }) {
   const questions = useMemo(
-    () => buildQuiz(quizMolecules, allMolecules, quizConfig, getQuestionsForMolecules),
+    () => buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds),
     // Only build once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -167,15 +167,15 @@ export default function QuizMode({ quizMolecules, allMolecules, quizConfig, getQ
   }
 
   function handleRetry() {
-    onExit('retry', quizMolecules)
+    onExit('retry', quizCompounds)
   }
 
   function handlePracticeMistakes() {
     const mistakeIds = questions
       .filter((q, i) => answers[i] !== q.correctIndex)
-      .map(q => q.moleculeId)
-    const mistakeMolecules = quizMolecules.filter(m => mistakeIds.includes(m.id))
-    onExit('practice', mistakeMolecules.length > 0 ? mistakeMolecules : quizMolecules)
+      .map(q => q.compoundId)
+    const mistakeCompounds = quizCompounds.filter(m => mistakeIds.includes(m.id))
+    onExit('practice', mistakeCompounds.length > 0 ? mistakeCompounds : quizCompounds)
   }
 
   if (phase === 'results') {
