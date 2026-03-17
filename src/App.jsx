@@ -158,19 +158,6 @@ export default function App() {
               <h1 className="text-xl font-semibold">Molecule Library</h1>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowAddModal(true)}
-                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  Add Molecule
-                </button>
-                <button
-                  onClick={handleExportCSV}
-                  disabled={selectedIds.size === 0}
-                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  Export CSV
-                </button>
-                <button
                   onClick={() => setShowCompare(true)}
                   disabled={selectedIds.size !== 2}
                   className={`text-sm px-3 py-1.5 rounded transition-colors ${
@@ -180,12 +167,6 @@ export default function App() {
                   }`}
                 >
                   Compare
-                </button>
-                <button
-                  onClick={() => setShowUploader(v => !v)}
-                  className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  {showUploader ? 'Hide CSV Upload' : 'Import CSV'}
                 </button>
                 <button
                   onClick={handleStartQuiz}
@@ -212,6 +193,28 @@ export default function App() {
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
             />
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                Add Molecule
+              </button>
+              <button
+                onClick={() => setShowUploader(v => !v)}
+                className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                {showUploader ? 'Hide CSV Upload' : 'Import CSV'}
+              </button>
+              <button
+                onClick={handleExportCSV}
+                disabled={selectedIds.size === 0}
+                className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Export CSV
+              </button>
+            </div>
           </>
         )}
 
