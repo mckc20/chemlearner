@@ -1,18 +1,18 @@
 import { useState } from 'react'
 
-export default function EditMoleculeModal({ molecule, onSave, onCancel }) {
-  const [name, setName] = useState(molecule.name)
-  const [formula, setFormula] = useState(molecule.formula)
-  const [category, setCategory] = useState(molecule.category)
-  const [information, setInformation] = useState(molecule.information)
-  const [wikipediaUrl, setWikipediaUrl] = useState(molecule.wikipediaUrl)
-  const [pubchemUrl, setPubchemUrl] = useState(molecule.pubchemUrl)
-  const [wikidataId, setWikidataId] = useState(molecule.wikidataId)
-  const [smiles, setSmiles] = useState(molecule.smiles)
+export default function EditCompoundModal({ compound, onSave, onCancel }) {
+  const [name, setName] = useState(compound.name)
+  const [formula, setFormula] = useState(compound.formula)
+  const [category, setCategory] = useState(compound.category)
+  const [information, setInformation] = useState(compound.information)
+  const [wikipediaUrl, setWikipediaUrl] = useState(compound.wikipediaUrl)
+  const [pubchemUrl, setPubchemUrl] = useState(compound.pubchemUrl)
+  const [wikidataId, setWikidataId] = useState(compound.wikidataId)
+  const [smiles, setSmiles] = useState(compound.smiles)
 
   function handleSubmit(e) {
     e.preventDefault()
-    onSave(molecule.id, {
+    onSave(compound.id, {
       name: name.trim(),
       formula: formula.trim(),
       category: category.trim(),
@@ -32,7 +32,7 @@ export default function EditMoleculeModal({ molecule, onSave, onCancel }) {
         className="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md mx-4 p-6 max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold mb-4">Edit Molecule</h2>
+        <h2 className="text-lg font-semibold mb-4">Edit Compound</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>

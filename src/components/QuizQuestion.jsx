@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { smilesToSvg } from '../services/rdkit'
-import { resolveMolecule } from '../services/pubchem'
+import { resolveCompound } from '../services/pubchem'
 import FormulaDisplay from './FormulaDisplay'
 
 const TEXT_ONLY_TYPES = ['formula-from-name', 'name-from-formula', 'general-knowledge']
@@ -18,7 +18,7 @@ function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, 
       try {
         let smi = smiles
         if (!smi) {
-          const result = await resolveMolecule(formula)
+          const result = await resolveCompound(formula)
           smi = result.smiles
         }
         const svgMarkup = await smilesToSvg(smi, size, size)
@@ -77,7 +77,7 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
   const isStructurePrompt = STRUCTURE_PROMPT_TYPES.includes(question.type)
   const isStructureOptions = question.type === 'structure-from-name'
 
-  // Resolve molecule SMILES → RDKit 2D SVG (only for structure-prompt types)
+  // Resolve compound SMILES → RDKit 2D SVG (only for structure-prompt types)
   useEffect(() => {
     if (!isStructurePrompt) {
       setStatus('ready')
@@ -90,9 +90,9 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
 
     async function resolve() {
       try {
-        let smi = question.moleculeSmiles
+        let smi = question.compoundSmiles
         if (!smi) {
-          const result = await resolveMolecule(question.moleculeFormula)
+          const result = await resolveCompound(question.compoundFormula)
           smi = result.smiles
         }
         const svgMarkup = await smilesToSvg(smi, 400, 400)
@@ -109,7 +109,7 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
 
     resolve()
     return () => { cancelled = true }
-  }, [question.moleculeFormula, question.moleculeSmiles, isStructurePrompt])
+  }, [question.compoundFormula, question.compoundSmiles, isStructurePrompt])
 
   function getButtonClass(index) {
     const base = 'w-full text-left px-4 py-3 rounded-lg border text-sm font-medium transition-colors'
@@ -133,9 +133,9 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
   } else if (question.type === 'name-from-formula') {
     promptText = null // rendered with FormulaDisplay below
   } else if (question.type === 'name-from-structure') {
-    promptText = 'What is the name of this molecule?'
+    promptText = 'What is the name of this compound?'
   } else if (question.type === 'category-from-structure') {
-    promptText = 'What category does this molecule belong to?'
+    promptText = 'What category does this compound belong to?'
   } else if (question.type === 'structure-from-name') {
     promptText = `Which structure is ${question.prompt}?`
   } else if (question.type === 'general-knowledge') {
@@ -161,7 +161,7 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
           {status === 'loading' && (
             <div className="flex flex-col items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
-              Loading molecule…
+              Loading compound…
             </div>
           )}
           {status === 'error' && (

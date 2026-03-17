@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { DEFAULTS } from '../data/defaultMolecules.js'
+import { DEFAULTS } from '../data/defaultCompounds.js'
 
-const STORAGE_KEY = 'chemlearner_molecules'
-const DELETED_DEFAULTS_KEY = 'chemlearner_deleted_defaults'
+const STORAGE_KEY = 'chemlearner_compounds'
+const DELETED_DEFAULTS_KEY = 'chemlearner_deleted_compound_defaults'
 
 function loadFromStorage() {
   try {
@@ -14,37 +14,37 @@ function loadFromStorage() {
   return null
 }
 
-function saveToStorage(molecules) {
+function saveToStorage(compounds) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(molecules))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(compounds))
   } catch {
     // ignore quota errors
   }
 }
 
-export function useMoleculeLibrary() {
-  const [molecules, setMolecules] = useState(() => {
+export function useCompoundLibrary() {
+  const [compounds, setCompounds] = useState(() => {
     const stored = loadFromStorage()
     return stored ?? DEFAULTS
   })
 
   useEffect(() => {
-    saveToStorage(molecules)
-  }, [molecules])
+    saveToStorage(compounds)
+  }, [compounds])
 
-  function addMolecule(molecule) {
-    const newMolecule = {
-      ...molecule,
-      id: `mol-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  function addCompound(compound) {
+    const newCompound = {
+      ...compound,
+      id: `comp-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     }
-    setMolecules(prev => [...prev, newMolecule])
-    return newMolecule
+    setCompounds(prev => [...prev, newCompound])
+    return newCompound
   }
 
-  function updateMolecule(id, updates) {
-    setMolecules(prev => prev.map(m => {
-      if (m.id !== id) return m
-      const updated = { ...m, ...updates }
+  function updateCompound(id, updates) {
+    setCompounds(prev => prev.map(c => {
+      if (c.id !== id) return c
+      const updated = { ...c, ...updates }
       if (id.startsWith('default-')) {
         updated._userModified = true
       }
@@ -52,7 +52,7 @@ export function useMoleculeLibrary() {
     }))
   }
 
-  function deleteMolecule(id) {
+  function deleteCompound(id) {
     if (id.startsWith('default-')) {
       try {
         const raw = localStorage.getItem(DELETED_DEFAULTS_KEY)
@@ -65,12 +65,12 @@ export function useMoleculeLibrary() {
         // ignore storage errors
       }
     }
-    setMolecules(prev => prev.filter(m => m.id !== id))
+    setCompounds(prev => prev.filter(c => c.id !== id))
   }
 
   function importFromCSV(rows) {
-    const existingNames = new Set(molecules.map(m => m.name.toLowerCase()))
-    const existingFormulas = new Set(molecules.map(m => m.formula.toLowerCase()))
+    const existingNames = new Set(compounds.map(c => c.name.toLowerCase()))
+    const existingFormulas = new Set(compounds.map(c => c.formula.toLowerCase()))
     const imported = []
     const errors = []
 
@@ -97,8 +97,8 @@ export function useMoleculeLibrary() {
         return
       }
 
-      const newMolecule = {
-        id: `mol-${Date.now()}-${Math.random().toString(36).slice(2)}-${index}`,
+      const newCompound = {
+        id: `comp-${Date.now()}-${Math.random().toString(36).slice(2)}-${index}`,
         name,
         formula,
         category,
@@ -108,17 +108,17 @@ export function useMoleculeLibrary() {
         wikidataId,
         smiles,
       }
-      imported.push(newMolecule)
+      imported.push(newCompound)
       existingNames.add(name.toLowerCase())
       existingFormulas.add(formula.toLowerCase())
     })
 
     if (imported.length > 0) {
-      setMolecules(prev => [...prev, ...imported])
+      setCompounds(prev => [...prev, ...imported])
     }
 
     return { imported: imported.length, errors }
   }
 
-  return { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV }
+  return { compounds, addCompound, updateCompound, deleteCompound, importFromCSV }
 }

@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import FormulaDisplay from './FormulaDisplay'
 
-export default function MoleculeList({ molecules, onDelete, onView, onEdit, selectedIds, onSelectionChange }) {
+export default function CompoundList({ compounds, onDelete, onView, onEdit, selectedIds, onSelectionChange }) {
   const [categoryFilter, setCategoryFilter] = useState('All')
 
-  const categories = ['All', ...new Set(molecules.map(m => m.category))]
+  const categories = ['All', ...new Set(compounds.map(c => c.category))]
   const filtered = categoryFilter === 'All'
-    ? molecules
-    : molecules.filter(m => m.category === categoryFilter)
+    ? compounds
+    : compounds.filter(c => c.category === categoryFilter)
 
   function toggleSelect(id) {
     const next = new Set(selectedIds)
@@ -17,18 +17,18 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
   }
 
   function toggleSelectAll() {
-    if (filtered.every(m => selectedIds.has(m.id))) {
+    if (filtered.every(c => selectedIds.has(c.id))) {
       const next = new Set(selectedIds)
-      filtered.forEach(m => next.delete(m.id))
+      filtered.forEach(c => next.delete(c.id))
       onSelectionChange(next)
     } else {
       const next = new Set(selectedIds)
-      filtered.forEach(m => next.add(m.id))
+      filtered.forEach(c => next.add(c.id))
       onSelectionChange(next)
     }
   }
 
-  const allFilteredSelected = filtered.length > 0 && filtered.every(m => selectedIds.has(m.id))
+  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedIds.has(c.id))
 
   return (
     <div>
@@ -49,7 +49,7 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
           </select>
         </div>
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {filtered.length} molecule{filtered.length !== 1 ? 's' : ''}
+          {filtered.length} compound{filtered.length !== 1 ? 's' : ''}
           {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
         </span>
       </div>
@@ -63,7 +63,7 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
                   type="checkbox"
                   checked={allFilteredSelected}
                   onChange={toggleSelectAll}
-                  aria-label="Select all visible molecules"
+                  aria-label="Select all visible compounds"
                   className="rounded"
                 />
               </th>
@@ -78,64 +78,64 @@ export default function MoleculeList({ molecules, onDelete, onView, onEdit, sele
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
-                  No molecules found.
+                  No compounds found.
                 </td>
               </tr>
             ) : (
-              filtered.map(molecule => (
+              filtered.map(compound => (
                 <tr
-                  key={molecule.id}
+                  key={compound.id}
                   className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
                   <td className="px-3 py-3">
                     <input
                       type="checkbox"
-                      checked={selectedIds.has(molecule.id)}
-                      onChange={() => toggleSelect(molecule.id)}
-                      aria-label={`Select ${molecule.name}`}
+                      checked={selectedIds.has(compound.id)}
+                      onChange={() => toggleSelect(compound.id)}
+                      aria-label={`Select ${compound.name}`}
                       className="rounded"
                     />
                   </td>
                   <td className="px-3 py-3 font-medium text-gray-900 dark:text-gray-100">
                     <button
-                      onClick={() => onView(molecule)}
+                      onClick={() => onView(compound)}
                       className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-left"
                     >
-                      {molecule.name}
+                      {compound.name}
                     </button>
                   </td>
                   <td className="px-3 py-3 font-mono text-gray-700 dark:text-gray-300">
-                    <FormulaDisplay formula={molecule.formula} />
+                    <FormulaDisplay formula={compound.formula} />
                   </td>
                   <td className="px-3 py-3">
                     <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-                      {molecule.category}
+                      {compound.category}
                     </span>
                   </td>
                   <td className="px-3 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">
-                    {molecule.information}
+                    {compound.information}
                   </td>
                   <td className="px-3 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button
-                        onClick={() => onView(molecule)}
-                        aria-label={`View ${molecule.name}`}
+                        onClick={() => onView(compound)}
+                        aria-label={`View ${compound.name}`}
                         className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       >
                         View
                       </button>
                       <button
-                        onClick={() => onEdit(molecule)}
-                        aria-label={`Edit ${molecule.name}`}
+                        onClick={() => onEdit(compound)}
+                        aria-label={`Edit ${compound.name}`}
                         className="text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors text-xs px-2 py-1 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => onDelete(molecule.id)}
-                        disabled={molecule.id.startsWith('default-')}
-                        aria-label={`Delete ${molecule.name}`}
-                        title={molecule.id.startsWith('default-') ? 'Default molecules cannot be deleted' : undefined}
+                        onClick={() => onDelete(compound.id)}
+                        disabled={compound.id.startsWith('default-')}
+                        aria-label={`Delete ${compound.name}`}
+                        title={compound.id.startsWith('default-') ? 'Default compounds cannot be deleted' : undefined}
                         className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:hover:text-gray-400 disabled:hover:bg-transparent"
                       >
                         Delete

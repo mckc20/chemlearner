@@ -1,25 +1,25 @@
 import { useState } from 'react'
 
 const QUIZ_TYPES = [
-  { id: 'formula-from-name', label: 'Formula from Name', description: 'See a molecule name, pick the correct formula', needsMolecules: true },
-  { id: 'name-from-formula', label: 'Name from Formula', description: 'See a formula, pick the correct name', needsMolecules: true },
-  { id: 'name-from-structure', label: 'Name from Structure', description: 'See a 2D structure, pick the correct name', needsMolecules: true },
-  { id: 'structure-from-name', label: 'Structure from Name', description: 'See a molecule name, pick the correct 2D structure', needsMolecules: true },
-  { id: 'category-from-structure', label: 'Category from Structure', description: 'See a 2D structure, pick the correct category', needsMolecules: true },
-  { id: 'general-knowledge', label: 'General Knowledge', description: 'Answer trivia questions about selected molecules', needsMolecules: false },
+  { id: 'formula-from-name', label: 'Formula from Name', description: 'See a compound name, pick the correct formula', needsCompounds: true },
+  { id: 'name-from-formula', label: 'Name from Formula', description: 'See a formula, pick the correct name', needsCompounds: true },
+  { id: 'name-from-structure', label: 'Name from Structure', description: 'See a 2D structure, pick the correct name', needsCompounds: true },
+  { id: 'structure-from-name', label: 'Structure from Name', description: 'See a compound name, pick the correct 2D structure', needsCompounds: true },
+  { id: 'category-from-structure', label: 'Category from Structure', description: 'See a 2D structure, pick the correct category', needsCompounds: true },
+  { id: 'general-knowledge', label: 'General Knowledge', description: 'Answer trivia questions about selected compounds', needsCompounds: false },
 ]
 
-export default function QuizSetup({ quizMolecules, allMolecules, availableGKCount, onStart, onCancel }) {
+export default function QuizSetup({ quizCompounds, allCompounds, availableGKCount, onStart, onCancel }) {
   const [quizType, setQuizType] = useState('formula-from-name')
   const [questionCount, setQuestionCount] = useState(null) // null = use max
 
   const selected = QUIZ_TYPES.find(t => t.id === quizType)
   const isGK = quizType === 'general-knowledge'
-  const moleculeLimit = quizMolecules.length
+  const compoundLimit = quizCompounds.length
   const maxQuestions = isGK
     ? Math.min(10, availableGKCount)
-    : Math.min(10, moleculeLimit)
-  const isLimitedBySelection = !isGK && moleculeLimit < 10
+    : Math.min(10, compoundLimit)
+  const isLimitedBySelection = !isGK && compoundLimit < 10
 
   const effectiveCount = questionCount == null
     ? maxQuestions
@@ -40,7 +40,7 @@ export default function QuizSetup({ quizMolecules, allMolecules, availableGKCoun
       <div className="text-center">
         <h2 className="text-xl font-semibold">Quiz Setup</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {quizMolecules.length} molecule{quizMolecules.length !== 1 ? 's' : ''} selected
+          {quizCompounds.length} compound{quizCompounds.length !== 1 ? 's' : ''} selected
         </p>
       </div>
 
@@ -67,7 +67,7 @@ export default function QuizSetup({ quizMolecules, allMolecules, availableGKCoun
                 <p className="font-medium">{type.label}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{type.description}</p>
                 {disabled && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">No questions available for selected molecules</p>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">No questions available for selected compounds</p>
                 )}
               </button>
             )
@@ -80,7 +80,7 @@ export default function QuizSetup({ quizMolecules, allMolecules, availableGKCoun
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Number of Questions: <span className="text-blue-600 dark:text-blue-400">{effectiveCount}</span>
           {isLimitedBySelection && (
-            <span className="text-xs text-amber-600 dark:text-amber-400 font-normal"> (only {moleculeLimit} molecule{moleculeLimit !== 1 ? 's' : ''} selected)</span>
+            <span className="text-xs text-amber-600 dark:text-amber-400 font-normal"> (only {compoundLimit} compound{compoundLimit !== 1 ? 's' : ''} selected)</span>
           )}
         </label>
         <input

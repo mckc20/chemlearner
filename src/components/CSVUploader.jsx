@@ -35,16 +35,16 @@ export default function CSVUploader({ onImport }) {
         setErrors(rowErrors)
 
         if (imported === 0 && rowErrors.length > 0) {
-          setStatus({ type: 'error', message: 'No molecules imported due to errors below.' })
+          setStatus({ type: 'error', message: 'No compounds imported due to errors below.' })
         } else if (imported > 0 && rowErrors.length > 0) {
           setStatus({
             type: 'success',
-            message: `Imported ${imported} molecule${imported !== 1 ? 's' : ''}. ${rowErrors.length} row${rowErrors.length !== 1 ? 's' : ''} skipped.`,
+            message: `Imported ${imported} compound${imported !== 1 ? 's' : ''}. ${rowErrors.length} row${rowErrors.length !== 1 ? 's' : ''} skipped.`,
           })
         } else if (imported > 0) {
           setStatus({
             type: 'success',
-            message: `Successfully imported ${imported} molecule${imported !== 1 ? 's' : ''}.`,
+            message: `Successfully imported ${imported} compound${imported !== 1 ? 's' : ''}.`,
           })
         } else {
           setStatus({ type: 'error', message: 'CSV contained no valid rows to import.' })

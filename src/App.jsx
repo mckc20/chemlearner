@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { useMoleculeLibrary } from './hooks/useMoleculeLibrary'
+import { useCompoundLibrary } from './hooks/useCompoundLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
 import { useQuizQuestions } from './hooks/useQuizQuestions'
-import MoleculeList from './components/MoleculeList'
+import CompoundList from './components/CompoundList'
 import CSVUploader from './components/CSVUploader'
-import MoleculeViewer from './components/MoleculeViewer'
-import EditMoleculeModal from './components/EditMoleculeModal'
-import AddMoleculeModal from './components/AddMoleculeModal'
+import CompoundViewer from './components/CompoundViewer'
+import EditCompoundModal from './components/EditCompoundModal'
+import AddCompoundModal from './components/AddCompoundModal'
 import CompareModal from './components/CompareModal'
 import QuizSetup from './components/QuizSetup'
 import QuizMode from './components/QuizMode'
@@ -14,22 +14,22 @@ import QuizHistory from './components/QuizHistory'
 import './index.css'
 
 export default function App() {
-  const { molecules, addMolecule, updateMolecule, deleteMolecule, importFromCSV } = useMoleculeLibrary()
+  const { compounds, addCompound, updateCompound, deleteCompound, importFromCSV } = useCompoundLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
-  const { getQuestionsForMolecules } = useQuizQuestions()
+  const { getQuestionsForCompounds } = useQuizQuestions()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showUploader, setShowUploader] = useState(false)
-  const [viewedMolecule, setViewedMolecule] = useState(null)
-  const [editingMolecule, setEditingMolecule] = useState(null)
+  const [viewedCompound, setViewedCompound] = useState(null)
+  const [editingCompound, setEditingCompound] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [activeView, setActiveView] = useState('library') // 'library' | 'quiz-setup' | 'quiz' | 'history'
-  const [quizMolecules, setQuizMolecules] = useState([])
+  const [quizCompounds, setQuizCompounds] = useState([])
   const [quizConfig, setQuizConfig] = useState(null)
   const [quizKey, setQuizKey] = useState(0) // force remount on retry
   const [showCompare, setShowCompare] = useState(false)
 
   function handleDelete(id) {
-    deleteMolecule(id)
+    deleteCompound(id)
     setSelectedIds(prev => {
       const next = new Set(prev)
       next.delete(id)
@@ -38,7 +38,7 @@ export default function App() {
   }
 
   function startQuizSetup(mols) {
-    setQuizMolecules(mols)
+    setQuizCompounds(mols)
     setActiveView('quiz-setup')
   }
 
@@ -49,7 +49,7 @@ export default function App() {
   }
 
   function handleExportCSV() {
-    const selected = molecules.filter(m => selectedIds.has(m.id))
+    const selected = compounds.filter(c => selectedIds.has(c.id))
     const columnMap = {
       Name: 'name', Formula: 'formula', Category: 'category', Information: 'information',
       WikipediaUrl: 'wikipediaUrl', PubchemUrl: 'pubchemUrl', WikidataId: 'wikidataId', SMILES: 'smiles'
@@ -76,24 +76,24 @@ export default function App() {
       + String(now.getSeconds()).padStart(2, '0')
     const a = document.createElement('a')
     a.href = url
-    a.download = `molecules_${timestamp}.csv`
+    a.download = `compounds_${timestamp}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
 
   function handleStartQuiz() {
-    const selected = molecules.filter(m => selectedIds.has(m.id))
+    const selected = compounds.filter(c => selectedIds.has(c.id))
     startQuizSetup(selected)
   }
 
   function handleQuizExit(action, mols) {
     if (action === 'retry') {
       // Reuse existing quizConfig — skip setup screen
-      setQuizMolecules(mols)
+      setQuizCompounds(mols)
       setQuizKey(k => k + 1)
       setActiveView('quiz')
     } else if (action === 'practice') {
-      setQuizMolecules(mols)
+      setQuizCompounds(mols)
       setQuizKey(k => k + 1)
       setActiveView('quiz')
     } else {
@@ -155,7 +155,7 @@ export default function App() {
         {activeView === 'library' && (
           <>
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold">Molecule Library</h1>
+              <h1 className="text-xl font-semibold">Compound Library</h1>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowCompare(true)}
@@ -185,11 +185,11 @@ export default function App() {
               </div>
             )}
 
-            <MoleculeList
-              molecules={molecules}
+            <CompoundList
+              compounds={compounds}
               onDelete={handleDelete}
-              onView={setViewedMolecule}
-              onEdit={setEditingMolecule}
+              onView={setViewedCompound}
+              onEdit={setEditingCompound}
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
             />
@@ -199,7 +199,7 @@ export default function App() {
                 onClick={() => setShowAddModal(true)}
                 className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                Add Molecule
+                Add Compound
               </button>
               <button
                 onClick={() => setShowUploader(v => !v)}
@@ -221,9 +221,9 @@ export default function App() {
         {/* Quiz setup view */}
         {activeView === 'quiz-setup' && (
           <QuizSetup
-            quizMolecules={quizMolecules}
-            allMolecules={molecules}
-            availableGKCount={getQuestionsForMolecules(quizMolecules.map(m => m.id)).length}
+            quizCompounds={quizCompounds}
+            allCompounds={compounds}
+            availableGKCount={getQuestionsForCompounds(quizCompounds.map(c => c.id)).length}
             onStart={handleQuizSetupStart}
             onCancel={() => setActiveView('library')}
           />
@@ -233,10 +233,10 @@ export default function App() {
         {activeView === 'quiz' && (
           <QuizMode
             key={quizKey}
-            quizMolecules={quizMolecules}
-            allMolecules={molecules}
+            quizCompounds={quizCompounds}
+            allCompounds={compounds}
             quizConfig={quizConfig}
-            getQuestionsForMolecules={getQuestionsForMolecules}
+            getQuestionsForCompounds={getQuestionsForCompounds}
             onExit={handleQuizExit}
             onSave={saveQuiz}
           />
@@ -251,43 +251,43 @@ export default function App() {
               onDeleteQuiz={deleteQuiz}
               onRetry={handleHistoryRetry}
               onPracticeMistakes={handleHistoryPracticeMistakes}
-              allMolecules={molecules}
+              allCompounds={compounds}
             />
           </>
         )}
       </main>
 
       {showAddModal && (
-        <AddMoleculeModal
-          onAdd={(molecule) => {
-            addMolecule(molecule)
+        <AddCompoundModal
+          onAdd={(compound) => {
+            addCompound(compound)
             setShowAddModal(false)
           }}
           onCancel={() => setShowAddModal(false)}
         />
       )}
 
-      {editingMolecule && (
-        <EditMoleculeModal
-          molecule={editingMolecule}
+      {editingCompound && (
+        <EditCompoundModal
+          compound={editingCompound}
           onSave={(id, updates) => {
-            updateMolecule(id, updates)
-            setEditingMolecule(null)
+            updateCompound(id, updates)
+            setEditingCompound(null)
           }}
-          onCancel={() => setEditingMolecule(null)}
+          onCancel={() => setEditingCompound(null)}
         />
       )}
 
-      {viewedMolecule && (
-        <MoleculeViewer
-          molecule={viewedMolecule}
-          onClose={() => setViewedMolecule(null)}
+      {viewedCompound && (
+        <CompoundViewer
+          compound={viewedCompound}
+          onClose={() => setViewedCompound(null)}
         />
       )}
 
       {showCompare && selectedIds.size === 2 && (
         <CompareModal
-          molecules={molecules.filter(m => selectedIds.has(m.id))}
+          compounds={compounds.filter(c => selectedIds.has(c.id))}
           onClose={() => setShowCompare(false)}
         />
       )}
