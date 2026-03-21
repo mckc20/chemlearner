@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import FormulaDisplay from './FormulaDisplay'
 
-export default function CompoundList({ compounds, onDelete, onView, onEdit, selectedIds, onSelectionChange }) {
+export default function CompoundList({ compounds, onView, selectedIds, onSelectionChange }) {
   const [categoryFilter, setCategoryFilter] = useState('All')
 
   const categories = ['All', ...new Set(compounds.map(c => c.category))]
@@ -74,13 +74,12 @@ export default function CompoundList({ compounds, onDelete, onView, onEdit, sele
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Formula</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Category</th>
               <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">Information</th>
-              <th className="px-3 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
+                <td colSpan={5} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
                   No compounds found.
                 </td>
               </tr>
@@ -117,33 +116,6 @@ export default function CompoundList({ compounds, onDelete, onView, onEdit, sele
                   </td>
                   <td className="px-3 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">
                     {compound.information}
-                  </td>
-                  <td className="px-3 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => onView(compound)}
-                        aria-label={`View ${compound.name}`}
-                        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => onEdit(compound)}
-                        aria-label={`Edit ${compound.name}`}
-                        className="text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors text-xs px-2 py-1 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(compound.id)}
-                        disabled={compound.id.startsWith('default-')}
-                        aria-label={`Delete ${compound.name}`}
-                        title={compound.id.startsWith('default-') ? 'Default compounds cannot be deleted' : undefined}
-                        className="text-xs px-2 py-1 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:hover:text-gray-400 disabled:hover:bg-transparent"
-                      >
-                        Delete
-                      </button>
-                    </div>
                   </td>
                 </tr>
               ))
