@@ -3,10 +3,7 @@ import { useCompoundLibrary } from './hooks/useCompoundLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
 import { useQuizQuestions } from './hooks/useQuizQuestions'
 import CompoundList from './components/CompoundList'
-import CSVUploader from './components/CSVUploader'
 import CompoundViewer from './components/CompoundViewer'
-import EditCompoundModal from './components/EditCompoundModal'
-import AddCompoundModal from './components/AddCompoundModal'
 import CompareModal from './components/CompareModal'
 import QuizSetup from './components/QuizSetup'
 import QuizMode from './components/QuizMode'
@@ -14,28 +11,16 @@ import QuizHistory from './components/QuizHistory'
 import './index.css'
 
 export default function App() {
-  const { compounds, addCompound, updateCompound, deleteCompound, importFromCSV } = useCompoundLibrary()
+  const { compounds } = useCompoundLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
   const { getQuestionsForCompounds } = useQuizQuestions()
   const [selectedIds, setSelectedIds] = useState(new Set())
-  const [showUploader, setShowUploader] = useState(false)
   const [viewedCompound, setViewedCompound] = useState(null)
-  const [editingCompound, setEditingCompound] = useState(null)
-  const [showAddModal, setShowAddModal] = useState(false)
   const [activeView, setActiveView] = useState('library') // 'library' | 'quiz-setup' | 'quiz' | 'history'
   const [quizCompounds, setQuizCompounds] = useState([])
   const [quizConfig, setQuizConfig] = useState(null)
   const [quizKey, setQuizKey] = useState(0) // force remount on retry
   const [showCompare, setShowCompare] = useState(false)
-
-  function handleDelete(id) {
-    deleteCompound(id)
-    setSelectedIds(prev => {
-      const next = new Set(prev)
-      next.delete(id)
-      return next
-    })
-  }
 
   function startQuizSetup(mols) {
     setQuizCompounds(mols)
@@ -178,35 +163,14 @@ export default function App() {
               </div>
             </div>
 
-            {showUploader && (
-              <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                <h2 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Import from CSV</h2>
-                <CSVUploader onImport={importFromCSV} />
-              </div>
-            )}
-
             <CompoundList
               compounds={compounds}
-              onDelete={handleDelete}
               onView={setViewedCompound}
-              onEdit={setEditingCompound}
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
             />
 
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                Add Compound
-              </button>
-              <button
-                onClick={() => setShowUploader(v => !v)}
-                className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                {showUploader ? 'Hide CSV Upload' : 'Import CSV'}
-              </button>
               <button
                 onClick={handleExportCSV}
                 disabled={selectedIds.size === 0}
@@ -256,27 +220,6 @@ export default function App() {
           </>
         )}
       </main>
-
-      {showAddModal && (
-        <AddCompoundModal
-          onAdd={(compound) => {
-            addCompound(compound)
-            setShowAddModal(false)
-          }}
-          onCancel={() => setShowAddModal(false)}
-        />
-      )}
-
-      {editingCompound && (
-        <EditCompoundModal
-          compound={editingCompound}
-          onSave={(id, updates) => {
-            updateCompound(id, updates)
-            setEditingCompound(null)
-          }}
-          onCancel={() => setEditingCompound(null)}
-        />
-      )}
 
       {viewedCompound && (
         <CompoundViewer
