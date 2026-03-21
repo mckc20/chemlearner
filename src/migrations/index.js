@@ -104,10 +104,24 @@ function migrateV2toV3(compounds) {
   })
 }
 
+/**
+ * v5 → v6: Sort default compounds alphabetically by name.
+ * User-added compounds are kept at the end in their original order.
+ */
+function migrateV5toV6(compounds) {
+  const defaults = compounds.filter(c => c.id?.startsWith('default-'))
+  const userAdded = compounds.filter(c => !c.id?.startsWith('default-'))
+
+  defaults.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+
+  return [...defaults, ...userAdded]
+}
+
 // Registry of version-specific migrations. Key = version they migrate TO.
 const MIGRATIONS = {
   1: migrateV0toV1,
   3: migrateV2toV3,
+  6: migrateV5toV6,
 }
 
 /**

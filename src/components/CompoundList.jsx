@@ -5,9 +5,12 @@ export default function CompoundList({ compounds, onDelete, onView, onEdit, sele
   const [categoryFilter, setCategoryFilter] = useState('All')
 
   const categories = ['All', ...new Set(compounds.map(c => c.category))]
+  const sorted = [...compounds].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  )
   const filtered = categoryFilter === 'All'
-    ? compounds
-    : compounds.filter(c => c.category === categoryFilter)
+    ? sorted
+    : sorted.filter(c => c.category === categoryFilter)
 
   function toggleSelect(id) {
     const next = new Set(selectedIds)
