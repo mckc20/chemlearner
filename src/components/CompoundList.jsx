@@ -6,15 +6,25 @@ import FormulaDisplay from './FormulaDisplay'
 export default function CompoundList({ compounds, onView, selectedIds, onSelectionChange }) {
   const { language } = useLanguage()
   const [categoryFilter, setCategoryFilter] = useState('All')
+  const [textFilter, setTextFilter] = useState('')
 
   // Build category list from the raw (English) category values for filtering
   const rawCategories = ['All', ...new Set(compounds.map(c => c.category))]
   const sorted = [...compounds].sort((a, b) =>
     a.name.localeCompare(b.name, language === 'de' ? 'de' : undefined, { sensitivity: 'base' })
   )
-  const filtered = categoryFilter === 'All'
+  const afterCategory = categoryFilter === 'All'
     ? sorted
     : sorted.filter(c => c.category === categoryFilter)
+  const filtered = textFilter
+    ? afterCategory.filter(c => {
+        const q = textFilter.toLowerCase()
+        return c.name.toLowerCase().includes(q)
+          || c.formula.toLowerCase().includes(q)
+          || c.category.toLowerCase().includes(q)
+          || (c.information && c.information.toLowerCase().includes(q))
+      })
+    : afterCategory
 
   function toggleSelect(id) {
     const next = new Set(selectedIds)
@@ -56,6 +66,13 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
               </option>
             ))}
           </select>
+          <input
+            type="text"
+            value={textFilter}
+            onChange={e => setTextFilter(e.target.value)}
+            placeholder={t(language, 'list.filterPlaceholder')}
+            className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
         </div>
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {tp(language, 'list.compoundCount', filtered.length)}
