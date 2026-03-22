@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { COMPOUND_FACTS } from '../data/compoundFacts'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t, getTranslatedFacts } from '../i18n/translate'
 
 export default function CompoundFacts({ compoundId, compact = false }) {
-  const facts = COMPOUND_FACTS[compoundId]
+  const { language } = useLanguage()
+  const facts = getTranslatedFacts(language, compoundId)
   const [expanded, setExpanded] = useState(false)
 
   if (!facts || facts.length === 0) return null
@@ -14,7 +16,7 @@ export default function CompoundFacts({ compoundId, compact = false }) {
   return (
     <div>
       <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
-        Did you know?
+        {t(language, 'facts.title')}
       </p>
       <ul className="space-y-1.5">
         {displayed.map((fact, i) => (
@@ -29,7 +31,7 @@ export default function CompoundFacts({ compoundId, compact = false }) {
           onClick={() => setExpanded(prev => !prev)}
           className="mt-1.5 text-xs text-blue-600 dark:text-blue-400 hover:underline"
         >
-          {expanded ? 'Show less' : `Show all ${facts.length} facts`}
+          {expanded ? t(language, 'facts.showLess') : t(language, 'facts.showAll', { count: facts.length })}
         </button>
       )}
     </div>

@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { LanguageProvider } from './i18n/LanguageContext'
 import { runMigrations } from './migrations/index.js'
 import { runQuizQuestionsMigrations } from './migrations/quizQuestions.js'
 
@@ -10,6 +11,8 @@ runQuizQuestionsMigrations()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 )

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t, translateQuestion } from '../i18n/translate'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
 
@@ -17,21 +19,24 @@ function pickDistractors(pool, correct, count = 3) {
   return unique.slice(0, count)
 }
 
-function buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds) {
+function buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds, language) {
   const { quizType, questionCount } = quizConfig
 
   if (quizType === 'general-knowledge') {
     const gkQuestions = getQuestionsForCompounds(quizCompounds.map(m => m.id))
     const selected = shuffle(gkQuestions).slice(0, questionCount)
     const molMap = Object.fromEntries(quizCompounds.map(m => [m.id, m]))
-    return selected.map(gk => ({
-      type: 'general-knowledge',
-      compoundId: gk.compoundId,
-      compoundName: molMap[gk.compoundId]?.name ?? '',
-      prompt: gk.question,
-      options: gk.options,
-      correctIndex: gk.correctIndex,
-    }))
+    return selected.map(gk => {
+      const translated = translateQuestion(language, gk)
+      return {
+        type: 'general-knowledge',
+        compoundId: gk.compoundId,
+        compoundName: molMap[gk.compoundId]?.name ?? '',
+        prompt: translated.question,
+        options: translated.options,
+        correctIndex: gk.correctIndex,
+      }
+    })
   }
 
   // If questionCount exceeds available compounds, repeat compounds
@@ -128,8 +133,10 @@ function buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompo
 }
 
 export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds, onExit, onSave }) {
+  const { language } = useLanguage()
+
   const questions = useMemo(
-    () => buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds),
+    () => buildQuiz(quizCompounds, allCompounds, quizConfig, getQuestionsForCompounds, language),
     // Only build once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -181,7 +188,7 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
   if (phase === 'results') {
     return (
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-xl font-semibold mb-6 text-center">Quiz Complete</h2>
+        <h2 className="text-xl font-semibold mb-6 text-center">{t(language, 'quiz.complete')}</h2>
         <QuizResults
           questions={questions}
           answers={answers}
@@ -200,13 +207,13 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">
-          Question {currentIndex + 1} of {questions.length}
+          {t(language, 'quiz.questionOf', { current: currentIndex + 1, total: questions.length })}
         </h2>
         <button
           onClick={() => onExit('exit')}
           className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
-          Exit Quiz
+          {t(language, 'quiz.exitQuiz')}
         </button>
       </div>
 

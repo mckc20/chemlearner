@@ -1,12 +1,16 @@
 import { useState } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t, tp } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
 
 export default function CompoundList({ compounds, onView, selectedIds, onSelectionChange }) {
+  const { language } = useLanguage()
   const [categoryFilter, setCategoryFilter] = useState('All')
 
-  const categories = ['All', ...new Set(compounds.map(c => c.category))]
+  // Build category list from the raw (English) category values for filtering
+  const rawCategories = ['All', ...new Set(compounds.map(c => c.category))]
   const sorted = [...compounds].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    a.name.localeCompare(b.name, language === 'de' ? 'de' : undefined, { sensitivity: 'base' })
   )
   const filtered = categoryFilter === 'All'
     ? sorted
@@ -38,7 +42,7 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <label htmlFor="category-filter" className="text-sm text-gray-600 dark:text-gray-400">
-            Category:
+            {t(language, 'list.categoryLabel')}
           </label>
           <select
             id="category-filter"
@@ -46,14 +50,16 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
             onChange={e => setCategoryFilter(e.target.value)}
             className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+            {rawCategories.map(cat => (
+              <option key={cat} value={cat}>
+                {cat === 'All' ? t(language, 'list.categoryAll') : cat}
+              </option>
             ))}
           </select>
         </div>
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {filtered.length} compound{filtered.length !== 1 ? 's' : ''}
-          {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
+          {tp(language, 'list.compoundCount', filtered.length)}
+          {selectedIds.size > 0 && ` · ${t(language, 'list.selected', { count: selectedIds.size })}`}
         </span>
       </div>
 
@@ -66,21 +72,21 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
                   type="checkbox"
                   checked={allFilteredSelected}
                   onChange={toggleSelectAll}
-                  aria-label="Select all visible compounds"
+                  aria-label={t(language, 'list.selectAll')}
                   className="rounded"
                 />
               </th>
-              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Name</th>
-              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Formula</th>
-              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Category</th>
-              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">Information</th>
+              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t(language, 'table.name')}</th>
+              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t(language, 'table.formula')}</th>
+              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">{t(language, 'table.category')}</th>
+              <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 hidden md:table-cell">{t(language, 'table.information')}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
-                  No compounds found.
+                  {t(language, 'list.noCompounds')}
                 </td>
               </tr>
             ) : (
@@ -94,7 +100,7 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
                       type="checkbox"
                       checked={selectedIds.has(compound.id)}
                       onChange={() => toggleSelect(compound.id)}
-                      aria-label={`Select ${compound.name}`}
+                      aria-label={t(language, 'list.selectOne', { name: compound.name })}
                       className="rounded"
                     />
                   </td>

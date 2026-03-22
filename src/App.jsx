@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useCompoundLibrary } from './hooks/useCompoundLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
 import { useQuizQuestions } from './hooks/useQuizQuestions'
+import { useLanguage } from './i18n/LanguageContext'
+import { t, translateCompound, translateCompounds } from './i18n/translate'
+import LanguageSwitch from './i18n/LanguageSwitch'
 import CompoundList from './components/CompoundList'
 import CompoundViewer from './components/CompoundViewer'
 import CompareModal from './components/CompareModal'
@@ -11,6 +14,7 @@ import QuizHistory from './components/QuizHistory'
 import './index.css'
 
 export default function App() {
+  const { language } = useLanguage()
   const { compounds } = useCompoundLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
   const { getQuestionsForCompounds } = useQuizQuestions()
@@ -94,9 +98,11 @@ export default function App() {
     startQuizSetup(mols)
   }
 
+  const translatedCompounds = translateCompounds(language, compounds)
+
   const navItems = [
-    { key: 'library', label: 'Library' },
-    { key: 'history', label: 'Quiz History' },
+    { key: 'library', label: t(language, 'nav.library') },
+    { key: 'history', label: t(language, 'nav.quizHistory') },
   ]
 
   return (
@@ -118,6 +124,7 @@ export default function App() {
             ChemLearner
           </span>
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <LanguageSwitch />
             {navItems.map(item => (
               <button
                 key={item.key}
@@ -140,7 +147,7 @@ export default function App() {
         {activeView === 'library' && (
           <>
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold">Compound Library</h1>
+              <h1 className="text-xl font-semibold">{t(language, 'library.title')}</h1>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowCompare(true)}
@@ -151,20 +158,20 @@ export default function App() {
                       : 'border border-gray-300 dark:border-gray-600 opacity-40 cursor-not-allowed text-gray-900 dark:text-gray-100'
                   }`}
                 >
-                  Compare
+                  {t(language, 'library.compare')}
                 </button>
                 <button
                   onClick={handleStartQuiz}
                   disabled={selectedIds.size < 2}
                   className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
-                  Start Quiz ({selectedIds.size} selected)
+                  {t(language, 'library.startQuiz', { count: selectedIds.size })}
                 </button>
               </div>
             </div>
 
             <CompoundList
-              compounds={compounds}
+              compounds={translatedCompounds}
               onView={setViewedCompound}
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
@@ -176,7 +183,7 @@ export default function App() {
                 disabled={selectedIds.size === 0}
                 className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Export CSV
+                {t(language, 'library.exportCsv')}
               </button>
             </div>
           </>
@@ -185,8 +192,8 @@ export default function App() {
         {/* Quiz setup view */}
         {activeView === 'quiz-setup' && (
           <QuizSetup
-            quizCompounds={quizCompounds}
-            allCompounds={compounds}
+            quizCompounds={translateCompounds(language, quizCompounds)}
+            allCompounds={translatedCompounds}
             availableGKCount={getQuestionsForCompounds(quizCompounds.map(c => c.id)).length}
             onStart={handleQuizSetupStart}
             onCancel={() => setActiveView('library')}
@@ -197,8 +204,8 @@ export default function App() {
         {activeView === 'quiz' && (
           <QuizMode
             key={quizKey}
-            quizCompounds={quizCompounds}
-            allCompounds={compounds}
+            quizCompounds={translateCompounds(language, quizCompounds)}
+            allCompounds={translatedCompounds}
             quizConfig={quizConfig}
             getQuestionsForCompounds={getQuestionsForCompounds}
             onExit={handleQuizExit}
@@ -209,13 +216,13 @@ export default function App() {
         {/* History view */}
         {activeView === 'history' && (
           <>
-            <h1 className="text-xl font-semibold">Quiz History</h1>
+            <h1 className="text-xl font-semibold">{t(language, 'history.title')}</h1>
             <QuizHistory
               history={history}
               onDeleteQuiz={deleteQuiz}
               onRetry={handleHistoryRetry}
               onPracticeMistakes={handleHistoryPracticeMistakes}
-              allCompounds={compounds}
+              allCompounds={translatedCompounds}
             />
           </>
         )}
@@ -223,30 +230,30 @@ export default function App() {
 
       {viewedCompound && (
         <CompoundViewer
-          compound={viewedCompound}
+          compound={translateCompound(language, viewedCompound)}
           onClose={() => setViewedCompound(null)}
         />
       )}
 
       {showCompare && selectedIds.size === 2 && (
         <CompareModal
-          compounds={compounds.filter(c => selectedIds.has(c.id))}
+          compounds={translatedCompounds.filter(c => selectedIds.has(c.id))}
           onClose={() => setShowCompare(false)}
         />
       )}
 
       <footer className="mt-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 text-center text-xs text-gray-400 dark:text-gray-500">
         <div>
-          A joint{' '}
+          {t(language, 'footer.joint')}{' '}
           <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
           ,{' '}
           <a href="https://github.com/rafacm" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">rafacm</a>
-          {' '}and{' '}
+          {' '}{t(language, 'footer.and')}{' '}
           <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">Claude Code</a>
-          {' '}production.
+          {' '}{t(language, 'footer.production')}
         </div>
         <div>
-          Source code available in <a href="https://github.com/mckc20/chemlearner" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>.
+          {t(language, 'footer.sourceCode')} <a href="https://github.com/mckc20/chemlearner" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>.
         </div>
         <div className="mt-1 text-gray-300 dark:text-gray-600">
           Version {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'}{' '}

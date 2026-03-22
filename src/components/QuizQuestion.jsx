@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { smilesToSvg } from '../services/rdkit'
 import { resolveCompound } from '../services/pubchem'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
 
 const TEXT_ONLY_TYPES = ['formula-from-name', 'name-from-formula', 'general-knowledge']
@@ -39,6 +41,8 @@ function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, 
   else if (wrong) borderClass = 'border-red-500 ring-1 ring-red-500'
   else if (selected) borderClass = 'border-blue-500'
 
+  const { language } = useLanguage()
+
   return (
     <button
       onClick={onClick}
@@ -55,7 +59,7 @@ function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, 
       )}
       {status === 'error' && (
         <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
-          Error
+          {t(language, 'quiz.error')}
         </div>
       )}
       {status === 'ready' && svg && (
@@ -69,6 +73,7 @@ function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, 
 }
 
 export default function QuizQuestion({ question, onAnswer, userAnswer, phase, onNext }) {
+  const { language } = useLanguage()
   const [status, setStatus] = useState('loading')
   const [errorMsg, setErrorMsg] = useState('')
   const [svg, setSvg] = useState(null)
@@ -129,15 +134,15 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
   // Build prompt text
   let promptText = ''
   if (question.type === 'formula-from-name') {
-    promptText = `What is the formula of ${question.prompt}?`
+    promptText = t(language, 'quiz.formulaFromName', { name: question.prompt })
   } else if (question.type === 'name-from-formula') {
     promptText = null // rendered with FormulaDisplay below
   } else if (question.type === 'name-from-structure') {
-    promptText = 'What is the name of this compound?'
+    promptText = t(language, 'quiz.nameFromStructure')
   } else if (question.type === 'category-from-structure') {
-    promptText = 'What category does this compound belong to?'
+    promptText = t(language, 'quiz.categoryFromStructure')
   } else if (question.type === 'structure-from-name') {
-    promptText = `Which structure is ${question.prompt}?`
+    promptText = t(language, 'quiz.structureFromName', { name: question.prompt })
   } else if (question.type === 'general-knowledge') {
     promptText = question.prompt
   }
@@ -149,7 +154,11 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
       {/* Prompt */}
       <div className="text-lg font-medium text-center">
         {question.type === 'name-from-formula' ? (
-          <p>What is the name of <span className="text-blue-600 dark:text-blue-400"><FormulaDisplay formula={question.prompt} /></span>?</p>
+          <p>
+            {t(language, 'quiz.nameFromFormula', { formula: '\0' }).split('\0').map((part, i) =>
+              i === 0 ? <span key={i}>{part}</span> : <span key={i}><span className="text-blue-600 dark:text-blue-400"><FormulaDisplay formula={question.prompt} /></span>{part}</span>
+            )}
+          </p>
         ) : (
           <p>{promptText}</p>
         )}
@@ -161,18 +170,18 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
           {status === 'loading' && (
             <div className="flex flex-col items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
-              Loading compound…
+              {t(language, 'quiz.loading')}
             </div>
           )}
           {status === 'error' && (
             <div className="flex flex-col items-center justify-center gap-2 px-6 text-center">
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">Could not load structure</p>
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">{t(language, 'structure.couldNotLoad')}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">{errorMsg}</p>
               <button
                 onClick={() => onAnswer(null)}
                 className="mt-2 text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                Skip
+                {t(language, 'quiz.skip')}
               </button>
             </div>
           )}
@@ -231,7 +240,7 @@ export default function QuizQuestion({ question, onAnswer, userAnswer, phase, on
             onClick={onNext}
             className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
           >
-            Next
+            {t(language, 'quiz.next')}
           </button>
         </div>
       )}
