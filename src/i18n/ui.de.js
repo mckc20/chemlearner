@@ -17,6 +17,7 @@ export default {
   'list.selected': '{count} ausgew\u00E4hlt',
   'list.noCompounds': 'Keine Verbindungen gefunden.',
   'list.selectAll': 'Alle sichtbaren Verbindungen ausw\u00E4hlen',
+  'list.filterPlaceholder': 'Verbindungen filtern\u2026',
   'list.selectOne': '{name} ausw\u00E4hlen',
 
   // Table headers

@@ -17,6 +17,7 @@ export default {
   'list.selected': '{count} selected',
   'list.noCompounds': 'No compounds found.',
   'list.selectAll': 'Select all visible compounds',
+  'list.filterPlaceholder': 'Filter compounds\u2026',
   'list.selectOne': 'Select {name}',
 
   // Table headers
