@@ -1,82 +1,120 @@
-# 🧪 ChemLearner 3D
+# ChemLearner 3D
 
-> A minimalist, high-performance web application for managing chemical formulas, visualizing molecules in interactive 3D, and testing knowledge through dynamic quizzes.
+A web application for managing chemical compound libraries, visualizing molecules in interactive 2D/3D, and testing knowledge through dynamic quizzes. Available in English and German.
+
+## Screenshots
+
+### Compound Library
+Browse 36 pre-loaded compounds with category and text filters, select compounds for quizzes or CSV export.
+
+![Compound Library](doc/screenshots/01-library.png)
+
+### Compound Viewer
+Click any compound to see its 2D skeletal structure (RDKit), interactive 3D model (3Dmol.js), educational facts, and external links.
+
+![Compound Viewer](doc/screenshots/02-compound-viewer.png)
+
+### Quiz Setup
+Choose from 6 quiz types, adjust the number of questions, and start learning.
+
+![Quiz Setup](doc/screenshots/03-quiz-setup.png)
+
+### Quiz Question
+Multiple-choice questions with properly rendered chemical formulas (subscripts and superscripts).
+
+![Quiz Question](doc/screenshots/04-quiz-question.png)
+
+### Quiz Results
+Color-coded score with per-question breakdown. Retry or practice only your mistakes.
+
+![Quiz Results](doc/screenshots/05-quiz-results.png)
+
+### Quiz History
+Review past quiz results, retry quizzes, or practice mistakes from any previous session.
+
+![Quiz History](doc/screenshots/06-quiz-history.png)
 
 ---
 
-## Project Overview
+## Features
 
-ChemLearner 3D is a React-based web application deployed on Netlify. It allows users to:
+### Compound Library
+- **36 pre-loaded compounds** spanning acids, bases, sugars, nucleobases, explosives, and more
+- Category filter dropdown and free-text search across all fields
+- Select compounds via checkboxes for quizzes or CSV export
+- Click any compound name to open a detailed viewer
+- Data persisted in browser `localStorage` with automatic migrations across versions
 
-- Manage a library of chemical formulas via CSV uploads
-- Visualize molecules in interactive 3D
-- Test their knowledge through a dynamic Quiz Mode
+### Molecular Visualization
+- **2D skeletal structures** generated via RDKit.js (WASM)
+- **Interactive 3D models** rendered with 3Dmol.js (ball-and-stick style, rotatable)
+- SDF molblocks fetched from PubChem (3D preferred, 2D fallback for ionic compounds)
+- Ambiguity detection when a formula matches multiple isomers
+- Educational facts, SMILES notation, and links to Wikipedia, PubChem, and Wikidata
+
+### Quiz Mode
+- **6 quiz types:**
+  - Formula from Name
+  - Name from Formula
+  - Name from Structure (2D model prompt)
+  - Structure from Name (visual multiple choice)
+  - Category from Structure
+  - General Knowledge (100+ fact-based questions)
+- Configurable question count (1-10)
+- Color-coded results with per-question breakdown
+- **Quiz history** with retry and practice-mistakes features
+
+### Internationalization
+- Full English and German support (UI, compound names, facts, quiz questions)
+- Language auto-detected from browser settings
+- DE/EN toggle in the header
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technology |
 |---|---|
-| **Framework** | React (Vite) |
-| **Styling** | Tailwind CSS (Auto Dark/Light mode) |
-| **3D Rendering** | 3Dmol.js |
-| **Chemistry Engine** | RDKit.js (for coordinate generation) |
-| **Data Parsing** | PapaParse (CSV) |
-| **External API** | PubChem PUG REST (Formula → SMILES resolution) |
-| **Persistence** | Browser `localStorage` |
+| Framework | React (Vite) |
+| Styling | Tailwind CSS (auto dark/light via `prefers-color-scheme`) |
+| 3D Rendering | 3Dmol.js |
+| 2D Structures | RDKit.js (WASM, CDN) |
+| Compound Data | PubChem PUG REST (SDF molblocks fetched directly) |
+| CSV Parsing | PapaParse |
+| Persistence | Browser `localStorage` |
+| Deployment | Netlify |
 
 ---
 
-## 📋 Data Schema (CSV Structure)
+## Getting Started
 
-The application expects a CSV file with the following columns:
+```bash
+npm install          # Install dependencies
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run lint         # Run ESLint
+npm test             # Run all tests
+```
+
+---
+
+## CSV Data Schema
+
+The application can export compound data as CSV with these columns:
 
 | Column | Description | Example |
 |---|---|---|
 | `Name` | Common name | `Water` |
 | `Formula` | Chemical formula | `H2O` |
 | `Category` | Functional group or class | `Solvent`, `Acid` |
-| `Description` | Educational context or facts | *(free text)* |
+| `Information` | Educational context | *(free text)* |
+| `WikipediaUrl` | Link to Wikipedia article | |
+| `PubchemUrl` | Link to PubChem compound page | |
+| `WikidataId` | Wikidata entity ID | `Q283` |
+| `SMILES` | SMILES notation | `O` |
 
 ---
 
-## 🔄 Core Functionalities & User Flows
+## Credits
 
-### 1. Library Management
-
-- **Initial Load:** The app comes pre-loaded with a default set:
-  - Water
-  - Sulphuric Acid
-  - Salt
-  - Nitroglycerin
-- **CSV Upload:** Users can import their own lists.
-- **Validation:**
-  - **Duplicates:** The app must prevent importing a formula or name that already exists in the library.
-  - **Errors:** Show a detailed error message identifying the specific row and column if data is missing or malformed.
-- **Persistence:** All changes (uploads/deletions) must persist across page refreshes using `localStorage`.
-
-### 2. Molecular Resolution (Formula → 3D)
-
-Because standard formulas (e.g., `C₂H₆O`) can be ambiguous, the app follows this pipeline:
-
-1. **API Fetch:** Query the PubChem API using the formula string to retrieve the SMILES string.
-2. **Ambiguity Handling:** If the API returns multiple isomers, display an informational message:
-   > "The formula [X] is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results."
-3. **3D Generation:**
-   - Pass the SMILES to **RDKit.js** to generate a 3D Molblock.
-   - Pass the Molblock to **3Dmol.js** for the final interactive rendering.
-
-### 3. Quiz Mode
-
-1. **Selection:** In the list view, users select specific molecules via checkboxes.
-2. **Flow:** Clicking **"Start Quiz"** launches a specialized view.
-3. **Logic:**
-   - The app displays the 3D model (rotatable).
-   - The user must correctly identify the molecule's **Name** or **Formula** from a list of options.
-
-### 4. UI/UX Requirements
-
-- **Aesthetic:** Minimalist "Lab" style.
-- **Theme:** Automatic switching between Dark and Light modes based on system preferences (`prefers-color-scheme`).
-- **Filtering:** A category-based filter to quickly sort through large molecule sets.
+A joint [mckc20](https://github.com/mckc20/), [rafacm](https://github.com/rafacm), and [Claude Code](https://claude.ai/code) production.
