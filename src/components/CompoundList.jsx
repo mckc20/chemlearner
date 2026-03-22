@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { t, tp } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
@@ -7,6 +7,11 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
   const { language } = useLanguage()
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [textFilter, setTextFilter] = useState('')
+
+  useEffect(() => {
+    setCategoryFilter('All')
+    setTextFilter('')
+  }, [language])
 
   // Build category list from the raw (English) category values for filtering
   const rawCategories = ['All', ...new Set(compounds.map(c => c.category))]
