@@ -105,13 +105,13 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                         <span className="font-medium">
                           {q.type === 'general-knowledge' ? (q.prompt || q.compoundName) : q.compoundName}
                         </span>
-                        <span className="text-gray-400">\u00B7</span>
+                        <span className="text-gray-400">{'\u00B7'}</span>
                         <span className="text-gray-500 dark:text-gray-400">
                           {quizTypeLabel(q.type)}
                         </span>
                         {!correct && q.userAnswer != null && (
                           <>
-                            <span className="text-gray-400">\u00B7</span>
+                            <span className="text-gray-400">{'\u00B7'}</span>
                             <span className="text-red-500 dark:text-red-400 text-xs">
                               {t(language, 'history.answered')} {q.type === 'formula' ? (
                                 <FormulaDisplay formula={q.options[q.userAnswer]} />
@@ -126,7 +126,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                         )}
                         {q.userAnswer == null && (
                           <>
-                            <span className="text-gray-400">\u00B7</span>
+                            <span className="text-gray-400">{'\u00B7'}</span>
                             <span className="text-gray-500 text-xs">{t(language, 'history.skipped')}</span>
                           </>
                         )}
