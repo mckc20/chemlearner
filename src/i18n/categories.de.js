@@ -1,0 +1,16 @@
+export const CATEGORIES_DE = {
+  'Acid': 'Säure',
+  'Alcohol': 'Alkohol',
+  'Analgesic': 'Schmerzmittel',
+  'Base': 'Base',
+  'Disinfectant': 'Desinfektionsmittel',
+  'Ester': 'Ester',
+  'Explosive': 'Sprengstoff',
+  'Gas': 'Gas',
+  'Mineral': 'Mineral',
+  'Nucleobase': 'Nukleobase',
+  'Oxidizer': 'Oxidationsmittel',
+  'Salt': 'Salz',
+  'Solvent': 'Lösungsmittel',
+  'Sugar': 'Zucker',
+}

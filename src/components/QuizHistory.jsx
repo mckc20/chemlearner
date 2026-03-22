@@ -1,26 +1,19 @@
 import { useState } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
 
-const TYPE_LABELS = {
-  'formula-from-name': 'Formula from Name',
-  'name-from-formula': 'Name from Formula',
-  'name-from-structure': 'Name from Structure',
-  'category-from-structure': 'Category from Structure',
-  'structure-from-name': 'Structure from Name',
-  'general-knowledge': 'General Knowledge',
-  // legacy types
-  'name': 'Name',
-  'formula': 'Formula',
-}
-
 export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPracticeMistakes, allCompounds }) {
+  const { language } = useLanguage()
   const [expandedId, setExpandedId] = useState(null)
+
+  const dateLocale = language === 'de' ? 'de-DE' : 'en-US'
 
   if (history.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-        <p className="text-lg font-medium">No quiz history yet</p>
-        <p className="text-sm mt-1">Complete a quiz to see your results here.</p>
+        <p className="text-lg font-medium">{t(language, 'history.noHistory')}</p>
+        <p className="text-sm mt-1">{t(language, 'history.noHistoryDetail')}</p>
       </div>
     )
   }
@@ -30,7 +23,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
     const compoundIds = quiz.questions.map(q => q.compoundId)
     const available = allCompounds.filter(m => compoundIds.includes(m.id))
     if (available.length < 2) {
-      alert('Not enough compounds from this quiz remain in the library (need at least 2).')
+      alert(t(language, 'history.notEnoughCompounds'))
       return
     }
     onRetry(available)
@@ -48,6 +41,10 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
       return
     }
     onPracticeMistakes(available)
+  }
+
+  function quizTypeLabel(type) {
+    return t(language, `quizType.${type}`) || type
   }
 
   return (
@@ -77,7 +74,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                 </span>
                 <div>
                   <p className="text-sm font-medium">
-                    {new Date(quiz.date).toLocaleDateString(undefined, {
+                    {new Date(quiz.date).toLocaleDateString(dateLocale, {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',
@@ -86,11 +83,11 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                     })}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {quiz.total} questions · {pct}%{quiz.quizType ? ` · ${TYPE_LABELS[quiz.quizType] || quiz.quizType}` : ''}
+                    {quiz.total} {t(language, 'history.questions')} · {pct}%{quiz.quizType ? ` · ${quizTypeLabel(quiz.quizType)}` : ''}
                   </p>
                 </div>
               </div>
-              <span className="text-gray-400 text-sm">{isExpanded ? '▲' : '▼'}</span>
+              <span className="text-gray-400 text-sm">{isExpanded ? '\u25B2' : '\u25BC'}</span>
             </button>
 
             {/* Expanded detail */}
@@ -103,25 +100,25 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                     return (
                       <div key={i} className="flex items-center gap-2 text-sm">
                         <span className={correct ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                          {correct ? '✓' : '✗'}
+                          {correct ? '\u2713' : '\u2717'}
                         </span>
                         <span className="font-medium">
                           {q.type === 'general-knowledge' ? (q.prompt || q.compoundName) : q.compoundName}
                         </span>
-                        <span className="text-gray-400">·</span>
+                        <span className="text-gray-400">\u00B7</span>
                         <span className="text-gray-500 dark:text-gray-400">
-                          {TYPE_LABELS[q.type] || q.type}
+                          {quizTypeLabel(q.type)}
                         </span>
                         {!correct && q.userAnswer != null && (
                           <>
-                            <span className="text-gray-400">·</span>
+                            <span className="text-gray-400">\u00B7</span>
                             <span className="text-red-500 dark:text-red-400 text-xs">
-                              Answered: {q.type === 'formula' ? (
+                              {t(language, 'history.answered')} {q.type === 'formula' ? (
                                 <FormulaDisplay formula={q.options[q.userAnswer]} />
                               ) : q.options[q.userAnswer]}
                             </span>
                             <span className="text-green-500 dark:text-green-400 text-xs">
-                              Correct: {q.type === 'formula' ? (
+                              {t(language, 'history.correct')} {q.type === 'formula' ? (
                                 <FormulaDisplay formula={q.options[q.correctIndex]} />
                               ) : q.options[q.correctIndex]}
                             </span>
@@ -129,8 +126,8 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                         )}
                         {q.userAnswer == null && (
                           <>
-                            <span className="text-gray-400">·</span>
-                            <span className="text-gray-500 text-xs">Skipped</span>
+                            <span className="text-gray-400">\u00B7</span>
+                            <span className="text-gray-500 text-xs">{t(language, 'history.skipped')}</span>
                           </>
                         )}
                       </div>
@@ -144,20 +141,20 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
                     onClick={() => handleRetry(quiz)}
                     className="text-xs px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
-                    Retry
+                    {t(language, 'history.retry')}
                   </button>
                   <button
                     onClick={() => handlePracticeMistakes(quiz)}
                     disabled={mistakes.length === 0}
                     className="text-xs px-3 py-1.5 rounded border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
-                    Practice Mistakes ({mistakes.length})
+                    {t(language, 'history.practiceMistakes', { count: mistakes.length })}
                   </button>
                   <button
                     onClick={() => onDeleteQuiz(quiz.id)}
                     className="text-xs px-3 py-1.5 rounded border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
-                    Delete
+                    {t(language, 'history.delete')}
                   </button>
                 </div>
               </div>

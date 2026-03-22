@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
 import CompoundFacts from './CompoundFacts'
 import { CompoundStructure, detailFields } from './CompareModal'
 
 export default function CompoundViewer({ compound, onClose }) {
+  const { language } = useLanguage()
   const [isAmbiguous, setIsAmbiguous] = useState(false)
 
   // Close on Escape key
@@ -14,6 +17,11 @@ export default function CompoundViewer({ compound, onClose }) {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
+
+  const localizedDetailFields = detailFields.map(f => ({
+    ...f,
+    label: t(language, `field.${f.key}`),
+  }))
 
   return (
     <div
@@ -26,7 +34,7 @@ export default function CompoundViewer({ compound, onClose }) {
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">{compound.name}</h2>
           <button
             onClick={onClose}
-            aria-label="Close viewer"
+            aria-label={t(language, 'viewer.closeLabel')}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none px-2"
           >
             &times;
@@ -42,13 +50,13 @@ export default function CompoundViewer({ compound, onClose }) {
           {/* Ambiguity warning */}
           {isAmbiguous && (
             <div className="px-3 py-2 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-300">
-              The formula <FormulaDisplay formula={compound.formula} /> is ambiguous. Displaying the most common structure (Isomer A). Use a SMILES string for specific results.
+              {t(language, 'viewer.ambiguity', { formula: compound.formula })}
             </div>
           )}
 
           <CompoundStructure mol={compound} onAmbiguous={setIsAmbiguous} />
 
-          {detailFields.map(({ label, key, mono }) => (
+          {localizedDetailFields.map(({ label, key, mono }) => (
             <div key={key}>
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</p>
               {compound[key] ? (
@@ -56,7 +64,7 @@ export default function CompoundViewer({ compound, onClose }) {
                   {compound[key]}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 italic">--</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 italic">{t(language, 'field.empty')}</p>
               )}
             </div>
           ))}
@@ -64,11 +72,11 @@ export default function CompoundViewer({ compound, onClose }) {
           {compound.id && <CompoundFacts compoundId={compound.id} compact />}
 
           <div>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Links</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t(language, 'field.links')}</p>
             <div className="flex flex-wrap gap-3 text-sm mt-0.5">
               {compound.wikipediaUrl ? (
                 <a href={compound.wikipediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Wikipedia</a>
-              ) : <span className="text-gray-400 dark:text-gray-500 italic">--</span>}
+              ) : <span className="text-gray-400 dark:text-gray-500 italic">{t(language, 'field.empty')}</span>}
               {compound.pubchemUrl && (
                 <a href={compound.pubchemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">PubChem</a>
               )}

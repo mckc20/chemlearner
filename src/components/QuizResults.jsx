@@ -1,20 +1,12 @@
-const TYPE_LABELS = {
-  'formula-from-name': 'Identify formula',
-  'name-from-formula': 'Identify name',
-  'name-from-structure': 'Identify name from structure',
-  'category-from-structure': 'Identify category from structure',
-  'structure-from-name': 'Identify structure',
-  'general-knowledge': 'General knowledge',
-  // legacy types
-  'name': 'Identify name',
-  'formula': 'Identify formula',
-}
+import { useLanguage } from '../i18n/LanguageContext'
+import { t } from '../i18n/translate'
 
-function typeLabel(type) {
-  return TYPE_LABELS[type] || type
+function typeLabel(language, type) {
+  return t(language, `resultType.${type}`) || type
 }
 
 export default function QuizResults({ questions, answers, onExit, onRetry, onPracticeMistakes }) {
+  const { language } = useLanguage()
   const score = answers.filter((a, i) => a === questions[i].correctIndex).length
   const total = questions.length
   const pct = Math.round((score / total) * 100)
@@ -47,18 +39,18 @@ export default function QuizResults({ questions, answers, onExit, onRetry, onPra
               }`}
             >
               <span className={`text-lg ${correct ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {correct ? '✓' : '✗'}
+                {correct ? '\u2713' : '\u2717'}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">
                   {q.type === 'general-knowledge' ? q.prompt : q.compoundName}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {typeLabel(q.type)}
+                  {typeLabel(language, q.type)}
                   {!correct && answers[i] != null && (
-                    <> — Your answer: {typeof q.options[answers[i]] === 'string' ? q.options[answers[i]] : q.options[answers[i]]?.name}</>
+                    <> — {t(language, 'results.yourAnswer')} {typeof q.options[answers[i]] === 'string' ? q.options[answers[i]] : q.options[answers[i]]?.name}</>
                   )}
-                  {answers[i] == null && ' — Skipped'}
+                  {answers[i] == null && ` — ${t(language, 'results.skipped')}`}
                 </p>
               </div>
             </div>
@@ -72,20 +64,20 @@ export default function QuizResults({ questions, answers, onExit, onRetry, onPra
           onClick={onExit}
           className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium transition-colors"
         >
-          Back to Library
+          {t(language, 'results.backToLibrary')}
         </button>
         <button
           onClick={onRetry}
           className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium transition-colors"
         >
-          Retry
+          {t(language, 'results.retry')}
         </button>
         <button
           onClick={onPracticeMistakes}
           disabled={mistakes.length === 0}
           className="px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium transition-colors"
         >
-          Practice Mistakes ({mistakes.length})
+          {t(language, 'results.practiceMistakes', { count: mistakes.length })}
         </button>
       </div>
     </div>
