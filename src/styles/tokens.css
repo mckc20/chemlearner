@@ -1,0 +1,73 @@
+:root {
+  color-scheme: light;
+  --background: 243 244 239;
+  --surface: 233 236 229;
+  --surface-raised: 247 248 244;
+  --text-primary: 28 36 33;
+  --text-secondary: 104 113 107;
+  --text-tertiary: 141 149 143;
+  --border: 201 206 200;
+  --border-strong: 174 182 175;
+  --primary: 83 111 100;
+  --primary-dark: 53 75 66;
+  --primary-light: 220 228 222;
+  --reaction: 184 94 82;
+  --reaction-light: 235 213 209;
+  --energy: 194 150 77;
+  --energy-light: 237 224 199;
+  --success: 95 128 107;
+  --warning: 180 138 67;
+  --error: 184 94 82;
+  --on-primary: 247 248 244;
+  --shadow-glow: 130 169 149;
+  --scrim: 28 36 33;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --background: 13 18 17;
+  --surface: 20 27 24;
+  --surface-raised: 26 36 32;
+  --text-primary: 229 234 228;
+  --text-secondary: 166 176 169;
+  --text-tertiary: 112 123 116;
+  --border: 42 53 48;
+  --border-strong: 59 73 66;
+  --primary: 130 169 149;
+  --primary-dark: 96 127 110;
+  --primary-light: 35 54 45;
+  --reaction: 212 119 104;
+  --reaction-light: 66 39 34;
+  --energy: 208 168 93;
+  --energy-light: 64 53 31;
+  --success: 131 173 146;
+  --warning: 208 168 93;
+  --error: 212 119 104;
+  --on-primary: 13 18 17;
+  --shadow-glow: 130 169 149;
+  --scrim: 9 12 11;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --radius-control: 3px;
+  --radius-module: 0px;
+  --border-width: 1px;
+  --transition-ui: 200ms ease;
+  --transition-theme: 220ms ease;
+  --content-max: 1440px;
+  --sidebar-width: 232px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-interface: 'Inter', system-ui, sans-serif;
+  --font-science: 'IBM Plex Mono', ui-monospace, monospace;
+}

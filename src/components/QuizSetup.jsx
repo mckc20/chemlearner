@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { t, tp } from '../i18n/translate'
+import SectionHeader from './SectionHeader'
 
 const QUIZ_TYPE_IDS = [
   { id: 'formula-from-name', needsCompounds: true },
@@ -37,13 +38,8 @@ export default function QuizSetup({ quizCompounds, allCompounds, availableGKCoun
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-8">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold">{t(language, 'quizSetup.title')}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {tp(language, 'quizSetup.compoundsSelected', quizCompounds.length)}
-        </p>
-      </div>
+    <div className="max-w-3xl mx-auto space-y-8">
+      <SectionHeader number="04" title={t(language, 'quizSetup.title')} description={tp(language, 'quizSetup.compoundsSelected', quizCompounds.length)} />
 
       {/* Quiz type selector */}
       <div className="space-y-2">

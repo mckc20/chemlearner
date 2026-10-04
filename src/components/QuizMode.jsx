@@ -3,6 +3,8 @@ import { useLanguage } from '../i18n/LanguageContext'
 import { t, translateQuestion } from '../i18n/translate'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
+import ProgressPath from './ProgressPath'
+import SectionHeader from './SectionHeader'
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -188,7 +190,7 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
   if (phase === 'results') {
     return (
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-xl font-semibold mb-6 text-center">{t(language, 'quiz.complete')}</h2>
+        <SectionHeader number="04" title={t(language, 'quiz.complete')} />
         <QuizResults
           questions={questions}
           answers={answers}
@@ -204,11 +206,12 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">
-          {t(language, 'quiz.questionOf', { current: currentIndex + 1, total: questions.length })}
-        </h2>
+      <SectionHeader
+        number="04"
+        title={language === 'de' ? 'Üben' : 'Practice'}
+        description={t(language, 'quiz.questionOf', { current: currentIndex + 1, total: questions.length })}
+      />
+      <div className="flex justify-end mb-6">
         <button
           onClick={() => onExit('exit')}
           className="text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -217,12 +220,8 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
         </button>
       </div>
 
-      {/* Progress bar */}
-      <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mb-6">
-        <div
-          className="h-full bg-blue-600 rounded-full transition-all duration-300"
-          style={{ width: `${((currentIndex) / questions.length) * 100}%` }}
-        />
+      <div className="mb-8">
+        <ProgressPath current={currentIndex + 1} total={questions.length} label={language === 'de' ? 'Fragen' : 'questions'} />
       </div>
 
       <QuizQuestion
