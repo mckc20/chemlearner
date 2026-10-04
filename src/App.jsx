@@ -1,4 +1,5 @@
-import { useState } from 'react'
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react'
 import { useCompoundLibrary } from './hooks/useCompoundLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
 import { useQuizQuestions } from './hooks/useQuizQuestions'
@@ -11,9 +12,13 @@ import CompareModal from './components/CompareModal'
 import QuizSetup from './components/QuizSetup'
 import QuizMode from './components/QuizMode'
 import QuizHistory from './components/QuizHistory'
+import LandingPage from './components/LandingPage'
+import PeriodicTable from './components/PeriodicTable'
+import SectionHeader from './components/SectionHeader'
+import ThemeSwitch from './components/ThemeSwitch'
 import './index.css'
 
-export default function App() {
+function Workspace({ onNavigate, pathname }) {
   const { language } = useLanguage()
   const { compounds } = useCompoundLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
@@ -101,62 +106,69 @@ export default function App() {
   const translatedCompounds = translateCompounds(language, compounds)
 
   const navItems = [
-    { key: 'library', label: t(language, 'nav.library') },
-    { key: 'history', label: t(language, 'nav.quizHistory') },
+    { key: 'library', number: '01', label: t(language, 'nav.library'), href: '/compounds' },
+    { key: 'history', number: '02', label: t(language, 'nav.quizHistory'), href: '/compounds' },
+    { key: 'periodic-table', number: '03', label: language === 'de' ? 'Periodensystem' : 'Periodic table', href: '/periodic-table' },
   ]
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <nav className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-semibold text-lg tracking-tight flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <circle cx="5" cy="6" r="2" />
-              <circle cx="19" cy="6" r="2" />
-              <circle cx="5" cy="18" r="2" />
-              <circle cx="19" cy="18" r="2" />
-              <line x1="9.5" y1="10.5" x2="6.5" y2="7.5" />
-              <line x1="14.5" y1="10.5" x2="17.5" y2="7.5" />
-              <line x1="9.5" y1="13.5" x2="6.5" y2="16.5" />
-              <line x1="14.5" y1="13.5" x2="17.5" y2="16.5" />
-            </svg>
+    <div className="app-shell">
+      <header className="app-topbar flex items-center justify-between px-5 sm:px-8">
+        <a href="/" onClick={(event) => onNavigate(event, '/')} className="font-semibold text-base tracking-tight flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <span className="brand-logo w-6 h-6" aria-hidden="true" />
             ChemLearner
-          </span>
-          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <LanguageSwitch />
-            {navItems.map(item => (
-              <button
-                key={item.key}
-                onClick={() => setActiveView(item.key)}
-                className={`${
-                  activeView === item.key || ((activeView === 'quiz' || activeView === 'quiz-setup') && item.key === 'library')
-                    ? 'text-gray-900 dark:text-gray-100 font-medium'
-                    : 'hover:text-gray-700 dark:hover:text-gray-300'
-                } transition-colors`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+        </a>
+        <div className="flex items-center gap-3 sm:gap-5 text-sm text-gray-500 dark:text-gray-400">
+          <LanguageSwitch />
+          <ThemeSwitch />
         </div>
-      </nav>
+      </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex min-h-[calc(100vh-64px)] max-[640px]:flex-col">
+        <aside className="app-sidebar py-8">
+          <div className="px-6 pb-4 text-[10px] font-semibold uppercase tracking-[.14em] text-gray-400">Chemistry</div>
+          <nav aria-label="Main navigation" className="space-y-1 px-3">
+            {navItems.map(item => {
+              const isActive = item.key === 'periodic-table'
+                ? pathname === '/periodic-table'
+                : pathname !== '/periodic-table' && (activeView === item.key || ((activeView === 'quiz' || activeView === 'quiz-setup') && item.key === 'library'))
+              return (
+                <a
+                  key={item.key}
+                  href={item.href}
+                  onClick={(event) => {
+                    onNavigate(event, item.href)
+                    if (item.key !== 'periodic-table') setActiveView(item.key)
+                  }}
+                  className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <span className="nav-number">{item.number}</span>
+                  <span className="text-sm">{item.label}</span>
+                </a>
+              )
+            })}
+          </nav>
+          <div className="mx-6 my-7 border-t border-gray-200" />
+          <div className="px-6 text-[10px] font-semibold uppercase tracking-[.14em] text-gray-400">Explore</div>
+          <a href="/" onClick={(event) => onNavigate(event, '/')} className="nav-item mx-3 mt-2">
+            <span className="nav-number">↗</span><span className="text-sm">{language === 'de' ? 'Startseite' : 'Home'}</span>
+          </a>
+        </aside>
+
+        <main className="workspace-main min-w-0 flex-1 space-y-10">
+        {pathname === '/periodic-table' ? <PeriodicTable /> : null}
+
         {/* Library view */}
-        {activeView === 'library' && (
+          {pathname !== '/periodic-table' && activeView === 'library' && (
           <>
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold">{t(language, 'library.title')}</h1>
+            <SectionHeader number="01" title={t(language, 'library.title')} />
+            <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowCompare(true)}
                   disabled={selectedIds.size !== 2}
-                  className={`text-sm px-3 py-1.5 rounded transition-colors ${
-                    selectedIds.size === 2
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'border border-gray-300 dark:border-gray-600 opacity-40 cursor-not-allowed text-gray-900 dark:text-gray-100'
-                  }`}
+                  className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {t(language, 'library.compare')}
                 </button>
@@ -190,7 +202,7 @@ export default function App() {
         )}
 
         {/* Quiz setup view */}
-        {activeView === 'quiz-setup' && (
+        {pathname !== '/periodic-table' && activeView === 'quiz-setup' && (
           <QuizSetup
             quizCompounds={translateCompounds(language, quizCompounds)}
             allCompounds={translatedCompounds}
@@ -201,7 +213,7 @@ export default function App() {
         )}
 
         {/* Quiz view */}
-        {activeView === 'quiz' && (
+        {pathname !== '/periodic-table' && activeView === 'quiz' && (
           <QuizMode
             key={quizKey}
             quizCompounds={translateCompounds(language, quizCompounds)}
@@ -214,9 +226,9 @@ export default function App() {
         )}
 
         {/* History view */}
-        {activeView === 'history' && (
+        {pathname !== '/periodic-table' && activeView === 'history' && (
           <>
-            <h1 className="text-xl font-semibold">{t(language, 'history.title')}</h1>
+            <SectionHeader number="02" title={t(language, 'history.title')} />
             <QuizHistory
               history={history}
               onDeleteQuiz={deleteQuiz}
@@ -226,7 +238,8 @@ export default function App() {
             />
           </>
         )}
-      </main>
+        </main>
+      </div>
 
       {viewedCompound && (
         <CompoundViewer
@@ -242,7 +255,7 @@ export default function App() {
         />
       )}
 
-      <footer className="mt-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 text-center text-xs text-gray-400 dark:text-gray-500">
+      <footer className="border-t border-gray-200 bg-white py-5 text-center text-xs text-gray-400 dark:text-gray-500">
         <div>
           {t(language, 'footer.joint')}{' '}
           <a href="https://github.com/mckc20/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600 dark:hover:text-gray-300">mckc20</a>
@@ -262,4 +275,30 @@ export default function App() {
       </footer>
     </div>
   )
+}
+
+function canHandleNavigation(event) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+}
+
+export default function App() {
+  const [pathname, setPathname] = useState(() => window.location.pathname)
+
+  useEffect(() => {
+    const handlePopState = () => setPathname(window.location.pathname)
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  function navigate(event, destination) {
+    if (!canHandleNavigation(event)) return
+    event.preventDefault()
+    if (window.location.pathname === destination) return
+    window.history.pushState({}, '', destination)
+    setPathname(destination)
+  }
+
+  return pathname === '/compounds' || pathname === '/periodic-table'
+    ? <Workspace onNavigate={navigate} pathname={pathname} />
+    : <LandingPage onNavigate={navigate} />
 }
