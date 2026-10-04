@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { resolveCompound } from '../services/pubchem'
 import { smilesToSvg } from '../services/rdkit'
 import { useLanguage } from '../i18n/LanguageContext'
+import { useTheme } from '../i18n/ThemeContext'
 import { t } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
 import CompoundFacts from './CompoundFacts'
 
 export function CompoundStructure({ mol, onAmbiguous }) {
   const { language } = useLanguage()
+  const { resolvedTheme } = useTheme()
   const viewerRef = useRef(null)
   const viewerInstanceRef = useRef(null)
   const [status, setStatus] = useState('loading')
@@ -53,8 +55,9 @@ export function CompoundStructure({ mol, onAmbiguous }) {
   useEffect(() => {
     if (status !== 'ready' || !viewerRef.current || !molblockRef.current) return
 
+    const surfaceColor = getComputedStyle(document.documentElement).getPropertyValue('--surface-raised').trim()
     const viewer = window.$3Dmol.createViewer(viewerRef.current, {
-      backgroundColor: 'white',
+      backgroundColor: `rgb(${surfaceColor})`,
     })
     viewer.addModel(molblockRef.current, 'sdf')
     viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.3 } })
@@ -66,7 +69,7 @@ export function CompoundStructure({ mol, onAmbiguous }) {
       viewer.clear()
       viewerInstanceRef.current = null
     }
-  }, [status])
+  }, [status, resolvedTheme])
 
   // ResizeObserver
   useEffect(() => {
@@ -211,10 +214,10 @@ export default function CompareModal({ compounds, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="dialog-scrim fixed inset-0 z-50 flex items-center justify-center"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">{t(language, 'compare.title')}</h2>

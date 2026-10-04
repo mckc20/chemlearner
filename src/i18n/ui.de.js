@@ -2,6 +2,7 @@ export default {
   // Nav
   'nav.library': 'Bibliothek',
   'nav.quizHistory': 'Quiz-Verlauf',
+  'nav.periodicTable': 'Periodensystem',
 
   // Library view
   'library.title': 'Verbindungsbibliothek',

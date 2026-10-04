@@ -47,7 +47,7 @@ function MiniStructure({ formula, smiles, size = 200, selected, correct, wrong, 
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative rounded-lg border-2 ${borderClass} overflow-hidden bg-white transition-colors ${
+      className={`relative rounded-lg border ${borderClass} overflow-hidden bg-white transition-colors ${
         disabled ? '' : 'hover:border-blue-400 cursor-pointer'
       }`}
       style={{ width: size, height: size }}

@@ -85,7 +85,7 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
         </span>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="overflow-x-auto border-y border-gray-200 dark:border-gray-700">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -126,10 +126,10 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
                       className="rounded"
                     />
                   </td>
-                  <td className="px-3 py-3 font-medium text-gray-900 dark:text-gray-100">
+                  <td className="px-3 py-3 font-medium text-gray-900">
                     <button
                       onClick={() => onView(compound)}
-                      className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-left"
+                      className="compound-list__name hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-left"
                     >
                       {compound.name}
                     </button>

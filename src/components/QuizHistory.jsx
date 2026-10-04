@@ -61,7 +61,7 @@ export default function QuizHistory({ history, onDeleteQuiz, onRetry, onPractice
         return (
           <div
             key={quiz.id}
-            className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="border-b border-gray-200 dark:border-gray-700 overflow-hidden"
           >
             {/* Summary row */}
             <button

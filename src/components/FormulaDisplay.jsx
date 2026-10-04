@@ -24,5 +24,5 @@ export default function FormulaDisplay({ formula, className = '' }) {
     }
   }
 
-  return <span className={className}>{parts}</span>
+  return <span className={`text-scientific ${className}`.trim()}>{parts}</span>
 }
