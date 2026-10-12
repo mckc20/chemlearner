@@ -1,0 +1,235 @@
+{
+  "retrievedAt": "2026-10-12",
+  "compounds": {
+    "lithium-carbonate": {
+      "cid": 11125,
+      "formula": "Li2CO3",
+      "pubchemFormula": "CLi2O3"
+    },
+    "beryllium-oxide": {
+      "cid": 14775,
+      "formula": "BeO",
+      "pubchemFormula": "BeO"
+    },
+    "boric-acid": {
+      "cid": 7628,
+      "formula": "H3BO3",
+      "pubchemFormula": "BH3O3"
+    },
+    "calcium-fluoride": {
+      "cid": 84512,
+      "formula": "CaF2",
+      "pubchemFormula": "CaF2"
+    },
+    "aluminium-oxide": {
+      "cid": 9989226,
+      "formula": "Al2O3",
+      "pubchemFormula": "Al2O3"
+    },
+    "silicon-dioxide": {
+      "cid": 24261,
+      "formula": "SiO2",
+      "pubchemFormula": "O2Si"
+    },
+    "scandium-oxide": {
+      "cid": 134661,
+      "formula": "Sc2O3",
+      "pubchemFormula": "O3Sc2"
+    },
+    "titanium-dioxide": {
+      "cid": 26042,
+      "formula": "TiO2",
+      "pubchemFormula": "O2Ti"
+    },
+    "vanadium-pentoxide": {
+      "cid": 14814,
+      "formula": "V2O5",
+      "pubchemFormula": "O5V2"
+    },
+    "chromium-iii-oxide": {
+      "cid": 517277,
+      "formula": "Cr2O3",
+      "pubchemFormula": "Cr2O3"
+    },
+    "manganese-dioxide": {
+      "cid": 14801,
+      "formula": "MnO2",
+      "pubchemFormula": "MnO2"
+    },
+    "iron-iii-oxide": {
+      "cid": 518696,
+      "formula": "Fe2O3",
+      "pubchemFormula": "Fe2O3"
+    },
+    "cobalt-ii-chloride": {
+      "cid": 24288,
+      "formula": "CoCl2",
+      "pubchemFormula": "Cl2Co"
+    },
+    "nickel-ii-sulfate": {
+      "cid": 24586,
+      "formula": "NiSO4",
+      "pubchemFormula": "NiO4S"
+    },
+    "copper-ii-sulfate-pentahydrate": {
+      "cid": 24463,
+      "formula": "CuSO4·5H2O",
+      "pubchemFormula": "CuH10O9S"
+    },
+    "zinc-oxide": {
+      "cid": 3007857,
+      "formula": "ZnO",
+      "pubchemFormula": "OZn"
+    },
+    "gallium-arsenide": {
+      "cid": 14770,
+      "formula": "GaAs",
+      "pubchemFormula": "AsGa"
+    },
+    "germanium-dioxide": {
+      "cid": 90478414,
+      "formula": "GeO2",
+      "pubchemFormula": "GeO2"
+    },
+    "selenium-dioxide": {
+      "cid": 24007,
+      "formula": "SeO2",
+      "pubchemFormula": "O2Se"
+    },
+    "potassium-bromide": {
+      "cid": 253877,
+      "formula": "KBr",
+      "pubchemFormula": "BrK"
+    },
+    "rubidium-chloride": {
+      "cid": 62683,
+      "formula": "RbCl",
+      "pubchemFormula": "ClRb"
+    },
+    "strontium-carbonate": {
+      "cid": 15407,
+      "formula": "SrCO3",
+      "pubchemFormula": "CO3Sr"
+    },
+    "yttrium-oxide": {
+      "cid": 159374,
+      "formula": "Y2O3",
+      "pubchemFormula": "O3Y2"
+    },
+    "zirconium-dioxide": {
+      "cid": 62395,
+      "formula": "ZrO2",
+      "pubchemFormula": "O2Zr"
+    },
+    "niobium-pentoxide": {
+      "cid": 9903420,
+      "formula": "Nb2O5",
+      "pubchemFormula": "Nb2O5"
+    },
+    "molybdenum-disulfide": {
+      "cid": 14823,
+      "formula": "MoS2",
+      "pubchemFormula": "MoS2"
+    },
+    "silver-nitrate": {
+      "cid": 24470,
+      "formula": "AgNO3",
+      "pubchemFormula": "AgNO3"
+    },
+    "cadmium-sulfide": {
+      "cid": 14783,
+      "formula": "CdS",
+      "pubchemFormula": "CdS"
+    },
+    "indium-oxide": {
+      "cid": 150905,
+      "formula": "In2O3",
+      "pubchemFormula": "In2O3"
+    },
+    "tin-iv-oxide": {
+      "cid": 16747781,
+      "formula": "SnO2",
+      "pubchemFormula": "O2Sn"
+    },
+    "antimony-trioxide": {
+      "cid": 14794,
+      "formula": "Sb2O3",
+      "pubchemFormula": "O3Sb2"
+    },
+    "tellurium-dioxide": {
+      "cid": 62638,
+      "formula": "TeO2",
+      "pubchemFormula": "O2Te"
+    },
+    "potassium-iodide": {
+      "cid": 4875,
+      "formula": "KI",
+      "pubchemFormula": "IK"
+    },
+    "xenon-difluoride": {
+      "cid": 83674,
+      "formula": "XeF2",
+      "pubchemFormula": "F2Xe"
+    },
+    "caesium-chloride": {
+      "cid": 24293,
+      "formula": "CsCl",
+      "pubchemFormula": "ClCs"
+    },
+    "barium-sulfate": {
+      "cid": 24414,
+      "formula": "BaSO4",
+      "pubchemFormula": "BaO4S"
+    },
+    "lanthanum-oxide": {
+      "cid": 150906,
+      "formula": "La2O3",
+      "pubchemFormula": "La2O3"
+    },
+    "cerium-dioxide": {
+      "cid": 73963,
+      "formula": "CeO2",
+      "pubchemFormula": "CeO2"
+    },
+    "hafnium-dioxide": {
+      "cid": 292779,
+      "formula": "HfO2",
+      "pubchemFormula": "HfO2"
+    },
+    "tantalum-pentoxide": {
+      "cid": 62157,
+      "formula": "Ta2O5",
+      "pubchemFormula": "O5Ta2"
+    },
+    "tungsten-carbide": {
+      "cid": 2724274,
+      "formula": "WC",
+      "pubchemFormula": "CW"
+    },
+    "mercury-ii-sulfide": {
+      "cid": 62402,
+      "formula": "HgS",
+      "pubchemFormula": "HgS"
+    },
+    "lead-ii-sulfide": {
+      "cid": 9794739,
+      "formula": "PbS",
+      "pubchemFormula": "PbS"
+    },
+    "bismuth-iii-oxide": {
+      "cid": 14776,
+      "formula": "Bi2O3",
+      "pubchemFormula": "Bi2O3"
+    },
+    "thorium-dioxide": {
+      "cid": 14808,
+      "formula": "ThO2",
+      "pubchemFormula": "O2Th"
+    },
+    "uranium-dioxide": {
+      "cid": 51003830,
+      "formula": "UO2",
+      "pubchemFormula": "O2U"
+    }
+  }
+}

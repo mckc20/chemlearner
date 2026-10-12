@@ -1,238 +1,143 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
+import { t } from '../i18n/translate'
+import { elementName, familyNames } from '../data/periodicElements'
+import PeriodicGrid from './PeriodicGrid'
+import PeriodicQuizSetupDialog from './PeriodicQuizSetupDialog'
 import SectionHeader from './SectionHeader'
 
-const elementNames = `Hydrogen|H
-Helium|He
-Lithium|Li
-Beryllium|Be
-Boron|B
-Carbon|C
-Nitrogen|N
-Oxygen|O
-Fluorine|F
-Neon|Ne
-Sodium|Na
-Magnesium|Mg
-Aluminium|Al
-Silicon|Si
-Phosphorus|P
-Sulfur|S
-Chlorine|Cl
-Argon|Ar
-Potassium|K
-Calcium|Ca
-Scandium|Sc
-Titanium|Ti
-Vanadium|V
-Chromium|Cr
-Manganese|Mn
-Iron|Fe
-Cobalt|Co
-Nickel|Ni
-Copper|Cu
-Zinc|Zn
-Gallium|Ga
-Germanium|Ge
-Arsenic|As
-Selenium|Se
-Bromine|Br
-Krypton|Kr
-Rubidium|Rb
-Strontium|Sr
-Yttrium|Y
-Zirconium|Zr
-Niobium|Nb
-Molybdenum|Mo
-Technetium|Tc
-Ruthenium|Ru
-Rhodium|Rh
-Palladium|Pd
-Silver|Ag
-Cadmium|Cd
-Indium|In
-Tin|Sn
-Antimony|Sb
-Tellurium|Te
-Iodine|I
-Xenon|Xe
-Caesium|Cs
-Barium|Ba
-Lanthanum|La
-Cerium|Ce
-Praseodymium|Pr
-Neodymium|Nd
-Promethium|Pm
-Samarium|Sm
-Europium|Eu
-Gadolinium|Gd
-Terbium|Tb
-Dysprosium|Dy
-Holmium|Ho
-Erbium|Er
-Thulium|Tm
-Ytterbium|Yb
-Lutetium|Lu
-Hafnium|Hf
-Tantalum|Ta
-Tungsten|W
-Rhenium|Re
-Osmium|Os
-Iridium|Ir
-Platinum|Pt
-Gold|Au
-Mercury|Hg
-Thallium|Tl
-Lead|Pb
-Bismuth|Bi
-Polonium|Po
-Astatine|At
-Radon|Rn
-Francium|Fr
-Radium|Ra
-Actinium|Ac
-Thorium|Th
-Protactinium|Pa
-Uranium|U
-Neptunium|Np
-Plutonium|Pu
-Americium|Am
-Curium|Cm
-Berkelium|Bk
-Californium|Cf
-Einsteinium|Es
-Fermium|Fm
-Mendelevium|Md
-Nobelium|No
-Lawrencium|Lr
-Rutherfordium|Rf
-Dubnium|Db
-Seaborgium|Sg
-Bohrium|Bh
-Hassium|Hs
-Meitnerium|Mt
-Darmstadtium|Ds
-Roentgenium|Rg
-Copernicium|Cn
-Nihonium|Nh
-Flerovium|Fl
-Moscovium|Mc
-Livermorium|Lv
-Tennessine|Ts
-Oganesson|Og`.split('\n').map((entry, index) => {
-  const [name, symbol] = entry.split('|')
-  return { number: index + 1, name, symbol }
-})
+export default function PeriodicTable({ onStartQuiz, onSelectElement, selectedElement }) {
+  const { language } = useLanguage()
+  const [showQuizSetup, setShowQuizSetup] = useState(false)
+  const [animatingElement, setAnimatingElement] = useState(null)
+  const animationRef = useRef(null)
+  const quizButtonRef = useRef(null)
 
-const periodGroups = [
-  [1, 18],
-  [1, 2, 13, 14, 15, 16, 17, 18],
-  [1, 2, 13, 14, 15, 16, 17, 18],
-  Array.from({ length: 18 }, (_, index) => index + 1),
-  Array.from({ length: 18 }, (_, index) => index + 1),
-  [1, 2, ...Array.from({ length: 15 }, (_, index) => index + 4)],
-  [1, 2, ...Array.from({ length: 15 }, (_, index) => index + 4)],
-]
+  useEffect(() => () => {
+    animationRef.current?.animation?.cancel?.()
+    animationRef.current?.clone?.remove()
+    clearTimeout(animationRef.current?.fallback)
+  }, [])
 
-function getCategory(number, group) {
-  if (number >= 57 && number <= 71) return 'lanthanoid'
-  if (number >= 89 && number <= 103) return 'actinoid'
-  if (group === 1 && number !== 1) return 'alkali'
-  if (group === 2) return 'alkaline'
-  if (group === 17) return 'halogen'
-  if (group === 18) return 'noble'
-  if (group >= 3 && group <= 12) return 'transition'
-  if ([5, 14, 32, 33, 51, 52, 84].includes(number)) return 'metalloid'
-  if ([1, 6, 7, 8, 15, 16, 34].includes(number)) return 'nonmetal'
-  return 'post-transition'
-}
+  function selectElement(number, trigger) {
+    if (animatingElement !== null) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !trigger.animate) {
+      onSelectElement(number, trigger)
+      return
+    }
 
-const mainElements = []
-for (let period = 1; period <= 7; period += 1) {
-  let number = period === 1 ? 1 : [3, 11, 19, 37, 55, 87][period - 2]
-  const groups = periodGroups[period - 1]
-  for (const group of groups) {
-    if ((period === 6 && number === 57) || (period === 7 && number === 89)) number += 15
-    const element = elementNames[number - 1]
-    if (element) mainElements.push({ ...element, period, group, category: getCategory(number, group) })
-    number += 1
+    const rect = trigger.getBoundingClientRect()
+    const clone = trigger.cloneNode(true)
+    const isMobile = window.matchMedia?.('(max-width: 700px)').matches
+    const inset = isMobile ? 8 : 24
+    const targetWidth = Math.min(1120, window.innerWidth - inset * 2)
+    const targetHeight = Math.min(820, window.innerHeight - inset * 2)
+    const targetLeft = (window.innerWidth - targetWidth) / 2
+    const targetTop = (window.innerHeight - targetHeight) / 2
+    Object.assign(clone.style, {
+      position: 'fixed',
+      left: `${rect.left}px`,
+      top: `${rect.top}px`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+      margin: '0',
+      zIndex: '80',
+      pointerEvents: 'none',
+      transformOrigin: 'center center',
+      willChange: 'transform, opacity',
+    })
+    clone.setAttribute('aria-hidden', 'true')
+    clone.removeAttribute('aria-pressed')
+    clone.tabIndex = -1
+    document.body.append(clone)
+    setAnimatingElement(number)
+
+    let completed = false
+    const finish = () => {
+      if (completed) return
+      completed = true
+      clearTimeout(animationRef.current?.flipTimer)
+      clearTimeout(animationRef.current?.fallback)
+      clone.remove()
+      animationRef.current = null
+      setAnimatingElement(null)
+      onSelectElement(number, trigger)
+    }
+    animationRef.current = { clone }
+    try {
+      const flip = clone.animate([
+        { transform: 'perspective(700px) rotateY(0deg)' },
+        { transform: 'perspective(700px) rotateY(180deg)' },
+      ], { duration: 300, easing: 'ease-in', fill: 'forwards' })
+      animationRef.current.animation = flip
+      animationRef.current.flipTimer = setTimeout(() => {
+        if (completed) return
+        flip.cancel()
+        clone.style.transform = 'rotateY(180deg)'
+        clone.style.background = 'rgb(var(--surface-raised))'
+        clone.style.borderColor = 'rgb(var(--border-strong))'
+        clone.querySelectorAll('*').forEach(child => { child.style.visibility = 'hidden' })
+        const expand = clone.animate([
+          { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`, borderRadius: '10px' },
+          { left: `${targetLeft}px`, top: `${targetTop}px`, width: `${targetWidth}px`, height: `${targetHeight}px`, borderRadius: '16px' },
+        ], { duration: 520, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'forwards' })
+        animationRef.current.animation = expand
+        expand.onfinish = finish
+      }, 300)
+      animationRef.current.fallback = setTimeout(finish, 950)
+    } catch {
+      finish()
+    }
   }
-}
 
-const detachedElements = elementNames
-  .map((element, index) => ({ ...element, number: index + 1 }))
-  .filter(element => (element.number >= 57 && element.number <= 71) || (element.number >= 89 && element.number <= 103))
-  .map(element => ({
-    ...element,
-    period: element.number < 72 ? 8 : 9,
-    group: (element.number < 72 ? element.number - 56 : element.number - 88),
-    category: element.number < 72 ? 'lanthanoid' : 'actinoid',
-  }))
-
-const categoryLabels = {
-  alkali: 'Alkali metal', alkaline: 'Alkaline earth metal', transition: 'Transition metal',
-  'post-transition': 'Post-transition metal', metalloid: 'Metalloid', nonmetal: 'Nonmetal',
-  halogen: 'Halogen', noble: 'Noble gas', lanthanoid: 'Lanthanide', actinoid: 'Actinide',
-}
-
-export default function PeriodicTable() {
-  const [selected, setSelected] = useState(null)
+  const closeQuizSetup = useCallback(() => {
+    setShowQuizSetup(false)
+    queueMicrotask(() => quizButtonRef.current?.focus())
+  }, [])
 
   return (
-    <section aria-labelledby="periodic-table-title" className="space-y-6">
-      <SectionHeader number="03" title="Periodic table" description="Select an element to see its details." headingId="periodic-table-title" />
+    <section aria-labelledby="periodic-table-title" className="periodic-table-section space-y-6">
+      <SectionHeader
+        number="03"
+        title={t(language, 'periodic.title')}
+        description={t(language, 'periodic.description')}
+        headingId="periodic-table-title"
+        actions={<button ref={quizButtonRef} type="button" onClick={() => setShowQuizSetup(true)} className="primary-button inline-flex items-center">{t(language, 'periodic.quiz')}</button>}
+      />
 
-      <div className="overflow-x-auto pb-2">
-        <div className="min-w-[900px] space-y-2">
-          <div className="periodic-grid">
-            {mainElements.map(element => (
-              <button
-                key={element.number}
-                type="button"
-                onClick={() => setSelected(element)}
-                aria-label={`${element.number} ${element.name} (${element.symbol})`}
-                aria-pressed={selected?.number === element.number}
-                className={`element-cell element-cell--${element.category} ${selected?.number === element.number ? 'element-cell--selected' : ''}`}
-                style={{ gridColumn: element.group, gridRow: element.period }}
-              >
-                <span className="element-cell__number">{element.number}</span>
-                <span className="element-cell__symbol">{element.symbol}</span>
-                <span className="element-cell__name">{element.name}</span>
-              </button>
-            ))}
-          </div>
-          <div className="periodic-grid periodic-grid--detached">
-            {detachedElements.map(element => (
-              <button
-                key={element.number}
-                type="button"
-                onClick={() => setSelected(element)}
-                aria-label={`${element.number} ${element.name} (${element.symbol})`}
-                aria-pressed={selected?.number === element.number}
-                className={`element-cell element-cell--${element.category} ${selected?.number === element.number ? 'element-cell--selected' : ''}`}
-                style={{ gridColumn: element.group + 3 }}
-              >
-                <span className="element-cell__number">{element.number}</span>
-                <span className="element-cell__symbol">{element.symbol}</span>
-                <span className="element-cell__name">{element.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PeriodicGrid label={t(language, 'periodic.title')} renderCell={(element) => (
+        <button
+          type="button"
+          onClick={event => selectElement(element.number, event.currentTarget)}
+          data-element-number={element.number}
+          aria-label={`${element.number} ${elementName(element, language)} (${element.symbol})`}
+          aria-pressed={selectedElement === element.number}
+          className={`element-cell element-cell--${element.family} ${selectedElement === element.number ? 'element-cell--selected' : ''} ${animatingElement === element.number ? 'element-cell--animating' : ''}`}
+        >
+          <span className="element-cell__number">{element.number}</span>
+          <span className="element-cell__symbol">{element.symbol}</span>
+          <span className="element-cell__name">{elementName(element, language)}</span>
+        </button>
+      )} />
+      <PeriodicFamilyLegend language={language} />
 
-      {selected && (
-        <div className="border-y border-gray-200 dark:border-gray-700 py-4 flex items-center gap-4" aria-live="polite">
-          <div className={`element-detail element-cell--${selected.category}`}>
-            <span className="element-cell__number">{selected.number}</span>
-            <span className="element-cell__symbol">{selected.symbol}</span>
-          </div>
-          <div>
-            <h2 className="font-semibold">{selected.name}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{categoryLabels[selected.category]}</p>
-          </div>
-        </div>
-      )}
+      {showQuizSetup && <PeriodicQuizSetupDialog onCancel={closeQuizSetup} onStart={onStartQuiz} />}
+
+
     </section>
+  )
+}
+
+export function PeriodicFamilyLegend({ language }) {
+  return (
+    <div className="periodic-family-legend" role="list" aria-label={t(language, 'periodic.legend')}>
+      {Object.entries(familyNames[language]).map(([family, name]) => (
+        <div className="periodic-family-legend__item" role="listitem" key={family}>
+          <span className={`periodic-family-legend__swatch element-cell--${family}`} aria-hidden="true" />
+          <span>{name}</span>
+        </div>
+      ))}
+    </div>
   )
 }

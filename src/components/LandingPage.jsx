@@ -1,30 +1,12 @@
 /* eslint-disable react/prop-types */
-import ThemeSwitch from './ThemeSwitch'
+import TopNavigation from './TopNavigation'
 
-export default function LandingPage({ onNavigate }) {
+export default function LandingPage({ onNavigate, pathname }) {
   return (
     <div className="landing-page">
       <div className="landing-page__grid" aria-hidden="true" />
 
-      <header className="landing-header">
-        <a className="landing-brand" href="/" onClick={(event) => onNavigate(event, '/')}> 
-          <span className="landing-brand__logo brand-logo" aria-hidden="true" />
-          ChemLearner
-        </a>
-        <nav aria-label="Primary navigation">
-          <div className="landing-actions">
-            <a className="landing-library-tab" href="/compounds" onClick={(event) => onNavigate(event, '/compounds')}>
-              Compound Library
-              <span aria-hidden="true">↗</span>
-            </a>
-            <a className="landing-library-tab" href="/periodic-table" onClick={(event) => onNavigate(event, '/periodic-table')}>
-              Periodic table
-              <span aria-hidden="true">↗</span>
-            </a>
-            <ThemeSwitch />
-          </div>
-        </nav>
-      </header>
+      <TopNavigation onNavigate={onNavigate} pathname={pathname} />
 
       <main className="landing-hero">
         <div className="landing-hero__eyebrow">A visual chemistry learning space</div>

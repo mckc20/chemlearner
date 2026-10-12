@@ -14,7 +14,7 @@ export default function CompoundFacts({ compoundId, compact = false }) {
   const hasMore = facts.length > visibleCount
 
   return (
-    <div>
+    <div className="compound-facts">
       <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
         {t(language, 'facts.title')}
       </p>

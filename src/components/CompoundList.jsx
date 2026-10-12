@@ -63,7 +63,7 @@ export default function CompoundList({ compounds, onView, selectedIds, onSelecti
             id="category-filter"
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
-            className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="library-category-filter text-sm border rounded px-2 py-1"
           >
             {rawCategories.map(cat => (
               <option key={cat} value={cat}>
