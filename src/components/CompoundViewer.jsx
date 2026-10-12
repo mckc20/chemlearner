@@ -1,94 +1,32 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable react/prop-types */
+import { useId, useState } from 'react'
+import { useDialog } from '../hooks/useDialog'
 import { useLanguage } from '../i18n/LanguageContext'
 import { t } from '../i18n/translate'
 import FormulaDisplay from './FormulaDisplay'
-import CompoundFacts from './CompoundFacts'
-import { CompoundStructure, detailFields } from './CompareModal'
+import CompoundDetails from './CompoundDetails'
+import { CompoundStructure } from './CompareModal'
 
-export default function CompoundViewer({ compound, onClose }) {
+export default function CompoundViewer({ compound, onClose, returnFocus }) {
+  const titleId = useId()
+  const dialogRef = useDialog(onClose, returnFocus)
   const { language } = useLanguage()
   const [isAmbiguous, setIsAmbiguous] = useState(false)
 
-  // Close on Escape key
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
-
-  const localizedDetailFields = detailFields.map(f => ({
-    ...f,
-    label: t(language, `field.${f.key}`),
-  }))
-
-  return (
-    <div
-      className="dialog-scrim fixed inset-0 z-50 flex items-center justify-center"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-lg mx-4 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">{compound.name}</h2>
-          <button
-            onClick={onClose}
-            aria-label={t(language, 'viewer.closeLabel')}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none px-2"
-          >
-            &times;
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-5 space-y-3 max-h-[80vh] overflow-y-auto">
-          <p className="text-sm font-mono text-gray-500 dark:text-gray-400">
-            <FormulaDisplay formula={compound.formula} />
-          </p>
-
-          {/* Ambiguity warning */}
-          {isAmbiguous && (
-            <div className="px-3 py-2 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-800 dark:text-amber-300">
-              {t(language, 'viewer.ambiguity', { formula: compound.formula })}
-            </div>
-          )}
-
-          <CompoundStructure mol={compound} onAmbiguous={setIsAmbiguous} />
-
-          {localizedDetailFields.map(({ label, key, mono }) => (
-            <div key={key}>
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</p>
-              {compound[key] ? (
-                <p className={`text-sm text-gray-800 dark:text-gray-200 mt-0.5 ${mono ? 'font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs break-all' : ''}`}>
-                  {compound[key]}
-                </p>
-              ) : (
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 italic">{t(language, 'field.empty')}</p>
-              )}
-            </div>
-          ))}
-
-          {compound.id && <CompoundFacts compoundId={compound.id} compact />}
-
-          <div>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t(language, 'field.links')}</p>
-            <div className="flex flex-wrap gap-3 text-sm mt-0.5">
-              {compound.wikipediaUrl ? (
-                <a href={compound.wikipediaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Wikipedia</a>
-              ) : <span className="text-gray-400 dark:text-gray-500 italic">{t(language, 'field.empty')}</span>}
-              {compound.pubchemUrl && (
-                <a href={compound.pubchemUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">PubChem</a>
-              )}
-              {compound.wikidataId && (
-                <a href={`https://www.wikidata.org/wiki/${compound.wikidataId}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
-                  Wikidata ({compound.wikidataId})
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
+  return <div className="dialog-scrim element-profile-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+    <section ref={dialogRef} role="dialog" aria-labelledby={titleId} tabIndex={-1} className="element-profile-dialog compound-dialog">
+      <header className="element-profile-header">
+        <h2 id={titleId}>{compound.name}</h2>
+        <button type="button" onClick={onClose} aria-label={t(language, 'viewer.closeLabel')} data-initial-focus className="secondary-button compound-close">×</button>
+      </header>
+      <div className="compound-dialog-body">
+        <aside className="compound-model-sidebar">
+          <div className="compound-formula-card"><FormulaDisplay formula={compound.formula} /></div>
+          {isAmbiguous && <p className="compound-ambiguity" role="status">{t(language, 'viewer.ambiguity', { formula: compound.formula })}</p>}
+          <CompoundStructure key={compound.id ?? compound.formula} mol={compound} onAmbiguous={setIsAmbiguous} />
+        </aside>
+        <div className="compound-detail-content"><CompoundDetails compound={compound} /></div>
       </div>
-    </div>
-  )
+    </section>
+  </div>
 }

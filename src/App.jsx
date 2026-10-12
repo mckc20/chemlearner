@@ -1,11 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCompoundLibrary } from './hooks/useCompoundLibrary'
 import { useQuizHistory } from './hooks/useQuizHistory'
 import { useQuizQuestions } from './hooks/useQuizQuestions'
 import { useLanguage } from './i18n/LanguageContext'
 import { t, translateCompound, translateCompounds } from './i18n/translate'
-import LanguageSwitch from './i18n/LanguageSwitch'
 import CompoundList from './components/CompoundList'
 import CompoundViewer from './components/CompoundViewer'
 import CompareModal from './components/CompareModal'
@@ -14,22 +13,66 @@ import QuizMode from './components/QuizMode'
 import QuizHistory from './components/QuizHistory'
 import LandingPage from './components/LandingPage'
 import PeriodicTable from './components/PeriodicTable'
+import PeriodicTableQuiz from './components/PeriodicTableQuiz'
 import SectionHeader from './components/SectionHeader'
-import ThemeSwitch from './components/ThemeSwitch'
+import TopNavigation from './components/TopNavigation'
+import ElementProfileDialog from './components/ElementProfileDialog'
+import HelpPage from './components/HelpPage'
+import { initialProfile } from './data/elementProfiles'
 import './index.css'
 
 function Workspace({ onNavigate, pathname }) {
   const { language } = useLanguage()
+  const isPeriodicRoute = pathname === '/periodic-table' || pathname === '/periodic-table/quiz'
   const { compounds } = useCompoundLibrary()
   const { history, saveQuiz, deleteQuiz } = useQuizHistory()
   const { getQuestionsForCompounds } = useQuizQuestions()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [viewedCompound, setViewedCompound] = useState(null)
+  const [elementProfile, setElementProfile] = useState(null)
+  const profileTrigger = useRef(null)
+  const [profileReturnControl, setProfileReturnControl] = useState(null)
+  const [compoundFromProfile, setCompoundFromProfile] = useState(false)
+  const updateProfile = useCallback(change => setElementProfile(current => ({ ...current, ...change })), [])
+
+  function openElement(atomicNumber, trigger) {
+    profileTrigger.current = trigger
+    setProfileReturnControl(null)
+    setElementProfile(initialProfile(atomicNumber, { paused: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false }))
+  }
+  function openProfileCompound(compound, control) {
+    setProfileReturnControl(control)
+    setCompoundFromProfile(true)
+    setViewedCompound(compound)
+  }
+  function closeCompound() {
+    setViewedCompound(null)
+    setCompoundFromProfile(false)
+  }
+  useEffect(() => {
+    setElementProfile(null)
+    setProfileReturnControl(null)
+    setCompoundFromProfile(false)
+    setViewedCompound(null)
+    setShowCompare(false)
+  }, [pathname])
   const [activeView, setActiveView] = useState('library') // 'library' | 'quiz-setup' | 'quiz' | 'history'
   const [quizCompounds, setQuizCompounds] = useState([])
   const [quizConfig, setQuizConfig] = useState(null)
+  const [periodicQuizConfig, setPeriodicQuizConfig] = useState(null)
   const [quizKey, setQuizKey] = useState(0) // force remount on retry
   const [showCompare, setShowCompare] = useState(false)
+
+  function navigateFromTopbar(event, destination) {
+    if (canHandleNavigation(event)) {
+      setElementProfile(null)
+      setViewedCompound(null)
+      setCompoundFromProfile(false)
+      setProfileReturnControl(null)
+      setShowCompare(false)
+    }
+    onNavigate(event, destination)
+  }
 
   function startQuizSetup(mols) {
     setQuizCompounds(mols)
@@ -40,6 +83,11 @@ function Workspace({ onNavigate, pathname }) {
     setQuizConfig(config)
     setQuizKey(k => k + 1)
     setActiveView('quiz')
+  }
+
+  function handlePeriodicQuizStart(event, config) {
+    setPeriodicQuizConfig(config)
+    onNavigate(event, '/periodic-table/quiz')
   }
 
   function handleExportCSV() {
@@ -105,64 +153,30 @@ function Workspace({ onNavigate, pathname }) {
 
   const translatedCompounds = translateCompounds(language, compounds)
 
-  const navItems = [
-    { key: 'library', number: '01', label: t(language, 'nav.library'), href: '/compounds' },
-    { key: 'history', number: '02', label: t(language, 'nav.quizHistory'), href: '/compounds' },
-    { key: 'periodic-table', number: '03', label: language === 'de' ? 'Periodensystem' : 'Periodic table', href: '/periodic-table' },
-  ]
-
   return (
     <div className="app-shell">
-      <header className="app-topbar flex items-center justify-between px-5 sm:px-8">
-        <a href="/" onClick={(event) => onNavigate(event, '/')} className="font-semibold text-base tracking-tight flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-            <span className="brand-logo w-6 h-6" aria-hidden="true" />
-            ChemLearner
-        </a>
-        <div className="flex items-center gap-3 sm:gap-5 text-sm text-gray-500 dark:text-gray-400">
-          <LanguageSwitch />
-          <ThemeSwitch />
-        </div>
-      </header>
+      <TopNavigation onNavigate={navigateFromTopbar} pathname={pathname} />
 
-      <div className="flex min-h-[calc(100vh-64px)] max-[640px]:flex-col">
-        <aside className="app-sidebar py-8">
-          <div className="px-6 pb-4 text-[10px] font-semibold uppercase tracking-[.14em] text-gray-400">Chemistry</div>
-          <nav aria-label="Main navigation" className="space-y-1 px-3">
-            {navItems.map(item => {
-              const isActive = item.key === 'periodic-table'
-                ? pathname === '/periodic-table'
-                : pathname !== '/periodic-table' && (activeView === item.key || ((activeView === 'quiz' || activeView === 'quiz-setup') && item.key === 'library'))
-              return (
-                <a
-                  key={item.key}
-                  href={item.href}
-                  onClick={(event) => {
-                    onNavigate(event, item.href)
-                    if (item.key !== 'periodic-table') setActiveView(item.key)
-                  }}
-                  className={`nav-item ${isActive ? 'nav-item--active' : ''}`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="nav-number">{item.number}</span>
-                  <span className="text-sm">{item.label}</span>
-                </a>
-              )
-            })}
-          </nav>
-          <div className="mx-6 my-7 border-t border-gray-200" />
-          <div className="px-6 text-[10px] font-semibold uppercase tracking-[.14em] text-gray-400">Explore</div>
-          <a href="/" onClick={(event) => onNavigate(event, '/')} className="nav-item mx-3 mt-2">
-            <span className="nav-number">↗</span><span className="text-sm">{language === 'de' ? 'Startseite' : 'Home'}</span>
-          </a>
-        </aside>
-
-        <main className="workspace-main min-w-0 flex-1 space-y-10">
-        {pathname === '/periodic-table' ? <PeriodicTable /> : null}
+      <main className="workspace-main min-w-0 space-y-10">
+        {pathname === '/periodic-table' && <PeriodicTable onStartQuiz={handlePeriodicQuizStart} onSelectElement={openElement} selectedElement={elementProfile?.atomicNumber} />}
+        {pathname === '/periodic-table/quiz' && <PeriodicTableQuiz onNavigate={onNavigate} initialConfig={periodicQuizConfig} onConfigChange={setPeriodicQuizConfig} />}
 
         {/* Library view */}
-          {pathname !== '/periodic-table' && activeView === 'library' && (
+          {!isPeriodicRoute && activeView === 'library' && (
           <>
-            <SectionHeader number="01" title={t(language, 'library.title')} />
+            <SectionHeader
+              number="01"
+              title={t(language, 'library.title')}
+              actions={(
+                <button
+                  type="button"
+                  onClick={() => setActiveView('history')}
+                  className="secondary-button text-sm"
+                >
+                  {t(language, 'nav.quizHistory')}
+                </button>
+              )}
+            />
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <button
@@ -202,7 +216,7 @@ function Workspace({ onNavigate, pathname }) {
         )}
 
         {/* Quiz setup view */}
-        {pathname !== '/periodic-table' && activeView === 'quiz-setup' && (
+        {!isPeriodicRoute && activeView === 'quiz-setup' && (
           <QuizSetup
             quizCompounds={translateCompounds(language, quizCompounds)}
             allCompounds={translatedCompounds}
@@ -213,7 +227,7 @@ function Workspace({ onNavigate, pathname }) {
         )}
 
         {/* Quiz view */}
-        {pathname !== '/periodic-table' && activeView === 'quiz' && (
+        {!isPeriodicRoute && activeView === 'quiz' && (
           <QuizMode
             key={quizKey}
             quizCompounds={translateCompounds(language, quizCompounds)}
@@ -226,9 +240,21 @@ function Workspace({ onNavigate, pathname }) {
         )}
 
         {/* History view */}
-        {pathname !== '/periodic-table' && activeView === 'history' && (
+        {!isPeriodicRoute && activeView === 'history' && (
           <>
-            <SectionHeader number="02" title={t(language, 'history.title')} />
+            <SectionHeader
+              number="02"
+              title={t(language, 'history.title')}
+              actions={(
+                <button
+                  type="button"
+                  onClick={() => setActiveView('library')}
+                  className="secondary-button text-sm"
+                >
+                  {t(language, 'nav.moleculeLibrary')}
+                </button>
+              )}
+            />
             <QuizHistory
               history={history}
               onDeleteQuiz={deleteQuiz}
@@ -238,13 +264,27 @@ function Workspace({ onNavigate, pathname }) {
             />
           </>
         )}
-        </main>
-      </div>
+      </main>
+
+      {elementProfile && !viewedCompound && (
+        <ElementProfileDialog
+          profile={elementProfile}
+          onChange={updateProfile}
+          onNavigate={number => { setProfileReturnControl(null); setElementProfile(current => initialProfile(number, current)) }}
+          onClose={() => setElementProfile(null)}
+          compounds={compounds}
+          onOpenCompound={openProfileCompound}
+          onHelp={event => onNavigate(event, event.currentTarget.getAttribute('href'))}
+          returnFocus={() => profileTrigger.current}
+          restoreControl={profileReturnControl}
+        />
+      )}
 
       {viewedCompound && (
         <CompoundViewer
           compound={translateCompound(language, viewedCompound)}
-          onClose={() => setViewedCompound(null)}
+          onClose={closeCompound}
+          returnFocus={compoundFromProfile ? () => null : undefined}
         />
       )}
 
@@ -278,6 +318,7 @@ function Workspace({ onNavigate, pathname }) {
 }
 
 function canHandleNavigation(event) {
+  if (event.type === 'submit') return true
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
 }
 
@@ -293,12 +334,14 @@ export default function App() {
   function navigate(event, destination) {
     if (!canHandleNavigation(event)) return
     event.preventDefault()
-    if (window.location.pathname === destination) return
+    if (`${window.location.pathname}${window.location.hash}` === destination) return
     window.history.pushState({}, '', destination)
-    setPathname(destination)
+    setPathname(window.location.pathname)
   }
 
-  return pathname === '/compounds' || pathname === '/periodic-table'
+  if (pathname === '/help') return <HelpPage onNavigate={navigate} />
+
+  return pathname === '/compounds' || pathname === '/periodic-table' || pathname === '/periodic-table/quiz'
     ? <Workspace onNavigate={navigate} pathname={pathname} />
-    : <LandingPage onNavigate={navigate} />
+    : <LandingPage onNavigate={navigate} pathname={pathname} />
 }
