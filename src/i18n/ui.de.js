@@ -107,6 +107,17 @@ export default {
   'list.selectAll': 'Alle sichtbaren Verbindungen ausw\u00E4hlen',
   'list.filterPlaceholder': 'Verbindungen filtern\u2026',
   'list.selectOne': '{name} ausw\u00E4hlen',
+  'list.openCompound': '{name} \u00F6ffnen',
+  'list.layoutLabel': 'Ansicht der Verbindungen',
+  'list.layoutTable': 'Tabelle',
+  'list.layoutGrid': 'Raster',
+  'list.compoundGrid': 'Verbindungen',
+  'list.imageTypeLabel': 'Kartenbild',
+  'list.imageSkeleton': 'Strukturformel',
+  'list.image3d': '3D-Modell',
+  'list.imageSkeletonAlt': '2D-Strukturformel von {name}',
+  'list.image3dAlt': '3D-Struktur von {name}',
+  'list.structureUnavailable': 'Struktur nicht verfügbar',
 
   // Table headers
   'table.name': 'Name',

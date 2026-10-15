@@ -107,6 +107,17 @@ export default {
   'list.selectAll': 'Select all visible compounds',
   'list.filterPlaceholder': 'Filter compounds\u2026',
   'list.selectOne': 'Select {name}',
+  'list.openCompound': 'Open {name}',
+  'list.layoutLabel': 'Compound layout',
+  'list.layoutTable': 'Table',
+  'list.layoutGrid': 'Grid',
+  'list.compoundGrid': 'Compounds',
+  'list.imageTypeLabel': 'Card image',
+  'list.imageSkeleton': 'Skeleton',
+  'list.image3d': '3D model',
+  'list.imageSkeletonAlt': '2D skeleton of {name}',
+  'list.image3dAlt': '3D structure of {name}',
+  'list.structureUnavailable': 'Structure unavailable',
 
   // Table headers
   'table.name': 'Name',

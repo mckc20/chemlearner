@@ -359,6 +359,30 @@
 .compound-structure-spinner { width: 20px; height: 20px; border: 2px solid rgb(var(--border)); border-top-color: rgb(var(--primary)); border-radius: 50%; }
 .compound-structure-svg { width: 100%; height: 100%; padding: 20px 12px 12px; }
 .compound-structure-svg svg { width: 100%; height: 100%; max-height: 100%; object-fit: contain; }
+.compound-list-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.compound-list-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.compound-list-toolbar__right { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; }
+.compound-list-view-switch { display: inline-flex; align-items: center; gap: 2px; border: 1px solid rgb(var(--border)); border-radius: var(--radius-control); padding: 3px; background: rgb(var(--surface)); }
+.compound-list-view-switch button { min-height: 30px; border: 1px solid transparent; border-radius: 2px; background: transparent; padding: 3px 9px; color: rgb(var(--text-secondary)); font-size: .8rem; cursor: pointer; }
+.compound-list-view-switch button[aria-pressed="true"] { border-color: rgb(var(--border)); background: rgb(var(--surface-raised)); color: rgb(var(--primary)); }
+.compound-list-image-setting { display: inline-flex; align-items: center; gap: 6px; color: rgb(var(--text-secondary)); font-size: .8rem; }
+.compound-list-image-setting select { max-width: 150px; border: 1px solid rgb(var(--border)); border-radius: var(--radius-control); background: rgb(var(--surface-raised)); padding: 4px 7px; color: rgb(var(--text-primary)); }
+.compound-list-select-visible { display: inline-flex; align-items: center; gap: 6px; color: rgb(var(--text-secondary)); font-size: .8rem; }
+.compound-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px; }
+.compound-library-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid rgb(var(--border)); border-radius: 10px; background: rgb(var(--surface-raised)); transition: border-color var(--transition-ui), box-shadow var(--transition-ui); }
+.compound-library-card:hover { border-color: rgb(var(--primary)); box-shadow: 0 4px 16px rgb(var(--scrim) / .08); }
+.compound-library-card__open { display: block; width: 100%; height: 100%; border: 0; background: transparent; padding: 0; color: inherit; text-align: left; cursor: pointer; }
+.compound-library-card__open:focus-visible { position: relative; z-index: 1; outline-offset: -3px; }
+.compound-card-image { position: relative; display: grid; height: 168px; place-items: center; overflow: hidden; background: rgb(var(--surface)); }
+.compound-card-image > img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+.compound-card-image__loading, .compound-card-image__unavailable { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgb(var(--text-secondary)); font-size: .8rem; }
+.compound-card-image__renderer { position: fixed; top: 0; left: -10000px; width: 320px; height: 180px; visibility: hidden; pointer-events: none; }
+.compound-library-card__content { display: flex; align-items: flex-start; gap: 10px; border-top: 1px solid rgb(var(--border)); padding: 12px 12px 12px 38px; }
+.compound-library-card__select { position: absolute; z-index: 2; left: 12px; bottom: 19px; margin: 0; cursor: pointer; }
+.compound-library-card__details { display: grid; min-width: 0; justify-items: start; gap: 6px; }
+.compound-library-card__details { color: rgb(var(--text-primary)); font-size: .96rem; font-weight: 600; line-height: 1.3; }
+.compound-library-card__open:hover .compound-library-card__details { color: rgb(var(--primary)); }
+.compound-library-card__formula { color: rgb(var(--text-secondary)); font-family: var(--font-science); font-size: .85rem; }
 /* RDKit uses inline white backgrounds and black bonds. Change only these neutrals;
    preserve element colours, with brighter blue/red atoms on dark surfaces. */
 .compound-structure-svg svg > rect { fill: rgb(var(--surface-raised)) !important; }
