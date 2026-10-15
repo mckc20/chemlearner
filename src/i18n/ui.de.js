@@ -135,9 +135,6 @@ export default {
   'structure.2dUnavailable': '2D-Struktur nicht verf\u00FCgbar',
 
   // Compound facts
-  'facts.title': 'Wusstest du schon?',
-  'facts.showLess': 'Weniger anzeigen',
-  'facts.showAll': 'Alle {count} Fakten anzeigen',
 
   // Quiz setup
   'quizSetup.title': 'Quiz-Einstellungen',

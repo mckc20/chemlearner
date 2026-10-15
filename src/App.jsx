@@ -30,6 +30,9 @@ function Workspace({ onNavigate, pathname }) {
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [viewedCompound, setViewedCompound] = useState(null)
   const [elementProfile, setElementProfile] = useState(null)
+  const [linkedElement, setLinkedElement] = useState(null)
+  const [linkedReturnControl, setLinkedReturnControl] = useState(null)
+  const [compoundTabSelections, setCompoundTabSelections] = useState({})
   const profileTrigger = useRef(null)
   const [profileReturnControl, setProfileReturnControl] = useState(null)
   const [compoundFromProfile, setCompoundFromProfile] = useState(false)
@@ -41,6 +44,8 @@ function Workspace({ onNavigate, pathname }) {
     setElementProfile(initialProfile(atomicNumber, { paused: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false }))
   }
   function openProfileCompound(compound, control) {
+    setCompoundTabSelections({})
+    setLinkedReturnControl(null)
     setProfileReturnControl(control)
     setCompoundFromProfile(true)
     setViewedCompound(compound)
@@ -49,8 +54,29 @@ function Workspace({ onNavigate, pathname }) {
     setViewedCompound(null)
     setCompoundFromProfile(false)
   }
+  function openViewedCompound(compound) {
+    setCompoundTabSelections({})
+    setLinkedReturnControl(null)
+    setViewedCompound(compound)
+  }
+  function openCompoundFromLinkedElement(compound) {
+    setLinkedElement(null)
+    setElementProfile(null)
+    setShowCompare(false)
+    setCompoundFromProfile(false)
+    openViewedCompound(compound)
+  }
+  function openLinkedElement(atomicNumber, control) {
+    setLinkedReturnControl(control)
+    setLinkedElement(initialProfile(atomicNumber, { paused: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false }))
+  }
+  function changeCompoundTab(compoundId, tab) {
+    setCompoundTabSelections(current => ({ ...current, [compoundId]: tab }))
+  }
   useEffect(() => {
     setElementProfile(null)
+    setLinkedElement(null)
+    setLinkedReturnControl(null)
     setProfileReturnControl(null)
     setCompoundFromProfile(false)
     setViewedCompound(null)
@@ -66,6 +92,7 @@ function Workspace({ onNavigate, pathname }) {
   function navigateFromTopbar(event, destination) {
     if (canHandleNavigation(event)) {
       setElementProfile(null)
+      setLinkedElement(null)
       setViewedCompound(null)
       setCompoundFromProfile(false)
       setProfileReturnControl(null)
@@ -180,7 +207,7 @@ function Workspace({ onNavigate, pathname }) {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowCompare(true)}
+                  onClick={() => { setCompoundTabSelections({}); setLinkedReturnControl(null); setShowCompare(true) }}
                   disabled={selectedIds.size !== 2}
                   className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
@@ -198,7 +225,7 @@ function Workspace({ onNavigate, pathname }) {
 
             <CompoundList
               compounds={translatedCompounds}
-              onView={setViewedCompound}
+              onView={openViewedCompound}
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
             />
@@ -266,7 +293,7 @@ function Workspace({ onNavigate, pathname }) {
         )}
       </main>
 
-      {elementProfile && !viewedCompound && (
+      {elementProfile && !viewedCompound && !linkedElement && (
         <ElementProfileDialog
           profile={elementProfile}
           onChange={updateProfile}
@@ -280,18 +307,39 @@ function Workspace({ onNavigate, pathname }) {
         />
       )}
 
-      {viewedCompound && (
+      {viewedCompound && !linkedElement && (
         <CompoundViewer
           compound={translateCompound(language, viewedCompound)}
           onClose={closeCompound}
           returnFocus={compoundFromProfile ? () => null : undefined}
+          activeTab={compoundTabSelections[viewedCompound.id] ?? 'overview'}
+          onTabChange={tab => changeCompoundTab(viewedCompound.id, tab)}
+          onOpenElement={openLinkedElement}
+          restoreControl={linkedReturnControl}
         />
       )}
 
-      {showCompare && selectedIds.size === 2 && (
+      {showCompare && selectedIds.size === 2 && !linkedElement && !viewedCompound && (
         <CompareModal
           compounds={translatedCompounds.filter(c => selectedIds.has(c.id))}
           onClose={() => setShowCompare(false)}
+          tabSelections={compoundTabSelections}
+          onTabChange={changeCompoundTab}
+          onOpenElement={openLinkedElement}
+          restoreControl={linkedReturnControl}
+        />
+      )}
+
+      {linkedElement && (
+        <ElementProfileDialog
+          profile={linkedElement}
+          onChange={change => setLinkedElement(current => ({ ...current, ...change }))}
+          onNavigate={number => setLinkedElement(current => initialProfile(number, current))}
+          onClose={() => setLinkedElement(null)}
+          compounds={compounds}
+          onOpenCompound={openCompoundFromLinkedElement}
+          onHelp={event => onNavigate(event, event.currentTarget.getAttribute('href'))}
+          returnFocus={() => null}
         />
       )}
 

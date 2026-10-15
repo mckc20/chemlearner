@@ -12,7 +12,7 @@ describe('useCompoundLibrary', () => {
     const names = result.current.compounds.map(c => c.name)
     expect(names).toContain('Water')
     expect(names).toContain('Sulphuric Acid')
-    expect(names).toContain('Salt')
+    expect(names).toContain('Sodium chloride')
     expect(names).toContain('Nitroglycerin')
   })
 

@@ -130,7 +130,7 @@ export const COMPOUNDS_DE = {
     wikipediaUrl: 'https://de.wikipedia.org/wiki/Kaliumhydroxid',
   },
   'default-11': {
-    name: 'Kochsalz',
+    name: 'Natriumchlorid',
     information: 'Gewöhnliches Speisesalz, eine ionische Verbindung aus Natrium und Chlor.',
     wikipediaUrl: 'https://de.wikipedia.org/wiki/Natriumchlorid',
   },

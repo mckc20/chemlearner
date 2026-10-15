@@ -95,6 +95,38 @@ describe('runMigrations', () => {
     expect(water._userModified).toBe(true)
   })
 
+  test('renames the old built-in Salt entry without changing its identity', () => {
+    const salt = DEFAULTS.find(c => c.id === 'default-11')
+    localStorage.setItem(COMPOUNDS_KEY, JSON.stringify([
+      { ...salt, name: 'Salt', _userModified: true },
+    ]))
+    localStorage.setItem(VERSION_KEY, '7')
+
+    runMigrations()
+
+    const stored = JSON.parse(localStorage.getItem(COMPOUNDS_KEY))
+    const updated = stored.find(c => c.id === 'default-11')
+    expect(updated.name).toBe('Sodium chloride')
+    expect(updated.formula).toBe('NaCl')
+    expect(updated._userModified).toBe(false)
+  })
+
+  test('preserves a customized Salt entry', () => {
+    const salt = DEFAULTS.find(c => c.id === 'default-11')
+    localStorage.setItem(COMPOUNDS_KEY, JSON.stringify([
+      { ...salt, name: 'Salt', information: 'My description', _userModified: true },
+    ]))
+    localStorage.setItem(VERSION_KEY, '7')
+
+    runMigrations()
+
+    const stored = JSON.parse(localStorage.getItem(COMPOUNDS_KEY))
+    const updated = stored.find(c => c.id === 'default-11')
+    expect(updated.name).toBe('Salt')
+    expect(updated.information).toBe('My description')
+    expect(updated._userModified).toBe(true)
+  })
+
   test('syncDefaults skips deleted defaults', () => {
     const compounds = DEFAULTS.filter(d => d.id !== 'default-15').map(d => ({ ...d }))
     localStorage.setItem(COMPOUNDS_KEY, JSON.stringify(compounds))

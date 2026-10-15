@@ -148,25 +148,25 @@ export function CompoundStructure({ mol, onAmbiguous }) {
   )
 }
 
-function CompoundCard({ mol }) {
+function CompoundCard({ mol, activeTab, onTabChange, onOpenElement }) {
   return <article className="compound-comparison-card">
     <header><h3>{mol.name}</h3><div className="compound-formula-card"><FormulaDisplay formula={mol.formula} /></div></header>
     <CompoundStructure mol={mol} />
-    <CompoundDetails compound={mol} />
+    <CompoundDetails compound={mol} activeTab={activeTab} onTabChange={tab => onTabChange(mol.id, tab)} onOpenElement={onOpenElement} />
   </article>
 }
 
-export default function CompareModal({ compounds, onClose }) {
+export default function CompareModal({ compounds, onClose, tabSelections = {}, onTabChange, onOpenElement, restoreControl }) {
   const { language } = useLanguage()
   const titleId = useId()
-  const dialogRef = useDialog(onClose)
+  const dialogRef = useDialog(onClose, undefined, node => [...node.querySelectorAll('[data-element-control]')].find(control => control.dataset.elementControl === restoreControl))
   return <div className="dialog-scrim element-profile-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
     <section ref={dialogRef} role="dialog" aria-labelledby={titleId} tabIndex={-1} className="element-profile-dialog compound-dialog">
       <header className="element-profile-header">
         <h2 id={titleId}>{t(language, 'compare.title')}</h2>
         <button type="button" onClick={onClose} aria-label={t(language, 'compare.closeLabel')} data-initial-focus className="secondary-button compound-close">×</button>
       </header>
-      <div className="compound-comparison-body">{compounds.map(compound => <CompoundCard key={compound.id ?? compound.name} mol={compound} />)}</div>
+      <div className="compound-comparison-body">{compounds.map(compound => <CompoundCard key={compound.id ?? compound.name} mol={compound} activeTab={tabSelections[compound.id] ?? 'overview'} onTabChange={onTabChange} onOpenElement={onOpenElement} />)}</div>
     </section>
   </div>
 }

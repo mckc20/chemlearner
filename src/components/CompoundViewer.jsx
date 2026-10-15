@@ -7,9 +7,9 @@ import FormulaDisplay from './FormulaDisplay'
 import CompoundDetails from './CompoundDetails'
 import { CompoundStructure } from './CompareModal'
 
-export default function CompoundViewer({ compound, onClose, returnFocus }) {
+export default function CompoundViewer({ compound, onClose, returnFocus, activeTab, onTabChange, onOpenElement, restoreControl }) {
   const titleId = useId()
-  const dialogRef = useDialog(onClose, returnFocus)
+  const dialogRef = useDialog(onClose, returnFocus, node => [...node.querySelectorAll('[data-element-control]')].find(control => control.dataset.elementControl === restoreControl))
   const { language } = useLanguage()
   const [isAmbiguous, setIsAmbiguous] = useState(false)
 
@@ -25,7 +25,7 @@ export default function CompoundViewer({ compound, onClose, returnFocus }) {
           {isAmbiguous && <p className="compound-ambiguity" role="status">{t(language, 'viewer.ambiguity', { formula: compound.formula })}</p>}
           <CompoundStructure key={compound.id ?? compound.formula} mol={compound} onAmbiguous={setIsAmbiguous} />
         </aside>
-        <div className="compound-detail-content"><CompoundDetails compound={compound} /></div>
+        <div className="compound-detail-content"><CompoundDetails compound={compound} activeTab={activeTab} onTabChange={onTabChange} onOpenElement={onOpenElement} /></div>
       </div>
     </section>
   </div>

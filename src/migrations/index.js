@@ -117,11 +117,27 @@ function migrateV5toV6(compounds) {
   return [...defaults, ...userAdded]
 }
 
+/**
+ * v7 → v8: Recognize the former built-in name for sodium chloride.
+ * Older migrations may have mistaken that name for a user edit.
+ */
+function migrateV7toV8(compounds) {
+  const sodiumChloride = DEFAULTS.find(compound => compound.id === 'default-11')
+  return compounds.map(compound => {
+    if (compound.id !== 'default-11' || compound.name !== 'Salt') return compound
+    const otherFieldsChanged = COMPARE_FIELDS
+      .filter(field => field !== 'name')
+      .some(field => compound[field] !== undefined && compound[field] !== sodiumChloride[field])
+    return otherFieldsChanged ? compound : { ...compound, _userModified: false }
+  })
+}
+
 // Registry of version-specific migrations. Key = version they migrate TO.
 const MIGRATIONS = {
   1: migrateV0toV1,
   3: migrateV2toV3,
   6: migrateV5toV6,
+  8: migrateV7toV8,
 }
 
 /**

@@ -135,9 +135,6 @@ export default {
   'structure.2dUnavailable': '2D structure unavailable',
 
   // Compound facts
-  'facts.title': 'Did you know?',
-  'facts.showLess': 'Show less',
-  'facts.showAll': 'Show all {count} facts',
 
   // Quiz setup
   'quizSetup.title': 'Quiz Setup',

@@ -2,9 +2,8 @@ import uiEn from './ui.en'
 import uiDe from './ui.de'
 import { CATEGORIES_DE } from './categories.de'
 import { COMPOUNDS_DE } from './compounds.de'
-import { COMPOUND_FACTS_DE } from './compoundFacts.de'
 import { QUIZ_QUESTIONS_DE } from './quizQuestions.de'
-import { COMPOUND_FACTS } from '../data/compoundFacts'
+import { profileForCompound } from '../data/compoundProfiles'
 
 const uiStrings = { en: uiEn, de: uiDe }
 
@@ -44,6 +43,7 @@ export function translateCategory(lang, category) {
  */
 export function translateCompound(lang, compound) {
   if (lang === 'en' || !compound?.id) return compound
+  if (!profileForCompound(compound)) return compound
   const de = COMPOUNDS_DE[compound.id]
   if (!de) return compound
   return {
@@ -61,14 +61,6 @@ export function translateCompound(lang, compound) {
 export function translateCompounds(lang, compounds) {
   if (lang === 'en') return compounds
   return compounds.map(c => translateCompound(lang, c))
-}
-
-/**
- * Get translated facts for a compound.
- */
-export function getTranslatedFacts(lang, compoundId) {
-  if (lang === 'en') return COMPOUND_FACTS[compoundId] ?? []
-  return COMPOUND_FACTS_DE[compoundId] ?? COMPOUND_FACTS[compoundId] ?? []
 }
 
 /**

@@ -1,4 +1,4 @@
-export const DATA_VERSION = 7
+export const DATA_VERSION = 8
 
 export const DEFAULTS = [
   {
@@ -289,7 +289,7 @@ export const DEFAULTS = [
   },
   {
     id: 'default-11',
-    name: 'Salt',
+    name: 'Sodium chloride',
     formula: 'NaCl',
     category: 'Salt',
     information: 'Common table salt, an ionic compound formed from sodium and chlorine.',

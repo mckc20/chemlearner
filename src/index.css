@@ -280,8 +280,8 @@
 .profile-sources a, .help-source-list a { text-decoration: underline; text-underline-offset: 3px; }
 .element-profile-dialog :focus-visible { outline: 3px solid rgb(var(--primary)); outline-offset: 3px; }
 @media (max-width: 700px) {
-  .element-profile-backdrop { padding: 8px; }
-  .element-profile-dialog { height: min(820px, calc(100dvh - 16px)); }
+  .element-profile-backdrop { width: 100vw; max-width: 100vw; box-sizing: border-box; padding: 8px; }
+  .element-profile-dialog { min-width: 0; max-width: 100%; height: min(820px, calc(100dvh - 16px)); }
   .element-profile-header { padding: 12px; }
   .element-profile-header h2 { font-size: 1.15rem; }
   .element-profile-body { display: block; overflow-y: auto; }
@@ -324,22 +324,33 @@
 .compound-dialog { width: min(1000px, 100%); }
 .compound-close { flex-shrink: 0; min-width: 42px; min-height: 42px; }
 .compound-dialog .element-profile-header h2 { overflow-wrap: anywhere; }
-.compound-dialog-body { display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 0; overflow: hidden; }
+.compound-dialog-body { display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 0; flex: 1 1 auto; overflow: hidden; }
 .compound-model-sidebar { padding: 24px; background: rgb(var(--surface)); border-right: 1px solid rgb(var(--border)); overflow-y: auto; }
 .compound-formula-card { display: flex; justify-content: center; align-items: center; padding: 16px; margin-bottom: 20px; border: 1px solid rgb(var(--border-strong)); border-radius: 10px; background: rgb(var(--primary-light)); color: rgb(var(--text-primary)); font-size: 1.6rem; font-weight: 700; overflow-wrap: anywhere; }
 .compound-formula-card > span { min-width: 0; }
 .compound-detail-content { min-width: 0; padding: 24px; overflow-y: auto; }
 .compound-details { display: grid; gap: 24px; overflow-wrap: anywhere; }
+.compound-profile-tabs { min-width: 0; margin-bottom: -24px; }
+.compound-profile-tabs button { min-width: 0; overflow-wrap: anywhere; }
+.compound-details .profile-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.compound-details .profile-prose dd { line-height: 1.65; }
+.compound-element-links button { display: inline; }
+.compound-reactions { display: grid; gap: 14px; }
+.compound-reactions h3 { font-weight: 700; }
+.compound-reactions p { line-height: 1.6; }
+.compound-equation { padding: 8px 10px; border-radius: 6px; background: rgb(var(--surface)); font-family: var(--font-science); overflow-wrap: anywhere; }
+.compound-sources { margin-top: 0; }
+.compound-sources .compound-links { margin-top: 16px; }
+.compound-comparison-card .compound-profile-tabs button { font-size: .75rem; }
+.compound-comparison-card .compound-details .profile-facts { grid-template-columns: 1fr; }
 .compound-fields { display: grid; gap: 20px; }
-.compound-fields dt, .compound-links h3, .compound-details .compound-facts > p { font-size: .8rem; font-weight: 600; color: rgb(var(--text-secondary)); margin-bottom: 6px; text-transform: none; letter-spacing: normal; }
+.compound-fields dt, .compound-links h3 { font-size: .8rem; font-weight: 600; color: rgb(var(--text-secondary)); margin-bottom: 6px; text-transform: none; letter-spacing: normal; }
 .compound-fields dd { line-height: 1.7; }
 .compound-smiles { padding: 10px 12px; border-radius: 6px; background: rgb(var(--surface)); border: 1px solid rgb(var(--border)); font-family: var(--font-science); font-size: .8rem; overflow-wrap: anywhere; }
 .compound-empty { color: rgb(var(--text-secondary)); font-style: italic; }
 .compound-links { border-top: 1px solid rgb(var(--border)); padding-top: 18px; }
 .compound-links > div { display: flex; flex-wrap: wrap; gap: 10px 18px; }
-.compound-dialog .compound-links a, .compound-details .compound-facts button { color: rgb(var(--primary)); text-decoration: underline; text-underline-offset: 3px; }
-.compound-details .compound-facts li { color: rgb(var(--text-primary)); line-height: 1.7; }
-.compound-details .compound-facts li > span:first-child { color: rgb(var(--text-secondary)); }
+.compound-dialog .compound-links a { color: rgb(var(--primary)); text-decoration: underline; text-underline-offset: 3px; }
 .compound-ambiguity { margin-bottom: 16px; padding: 12px; border-left: 3px solid rgb(var(--warning)); border-radius: 4px; background: rgb(var(--energy-light)); color: rgb(var(--text-primary)); font-size: .85rem; }
 .compound-structures { display: grid; gap: 12px; }
 .compound-structure-panel { position: relative; height: 220px; overflow: hidden; border: 1px solid rgb(var(--border)); border-radius: 10px; background: rgb(var(--surface-raised)); }
@@ -363,6 +374,7 @@
 .compound-comparison-card > header h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
 .compound-comparison-card > .compound-details { margin-top: 24px; }
 @media (max-width: 700px) {
+  .compound-dialog { width: 100%; min-width: 0; }
   .compound-dialog-body { display: block; overflow-y: auto; }
   .compound-model-sidebar { padding: 16px; border-right: 0; border-bottom: 1px solid rgb(var(--border)); overflow: visible; }
   .compound-detail-content { padding: 20px 16px; overflow: visible; }
@@ -370,6 +382,8 @@
   .compound-comparison-body { grid-template-columns: 1fr; }
   .compound-comparison-card { padding: 20px 16px; }
   .compound-comparison-card + .compound-comparison-card { border-left: 0; border-top: 1px solid rgb(var(--border)); }
+  .compound-details .profile-facts { grid-template-columns: 1fr; }
+  .compound-profile-tabs button { font-size: .72rem; padding: 10px 2px; }
 }
 
 .profile-library { margin-top: 22px; }
