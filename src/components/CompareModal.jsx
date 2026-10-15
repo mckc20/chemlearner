@@ -23,7 +23,22 @@ export function CompoundStructure({ mol, onAmbiguous }) {
   useEffect(() => {
     let cancelled = false
 
+    async function renderSvg(smiles) {
+      try {
+        const svg = await smilesToSvg(smiles)
+        if (!cancelled) setSvgMarkup(svg)
+      } catch {
+        if (!cancelled) setSvgError(true)
+      }
+    }
+
     async function resolve() {
+      setStatus('loading')
+      setErrorMsg('')
+      setSvgMarkup(null)
+      setSvgError(false)
+      molblockRef.current = null
+      if (mol.smiles) renderSvg(mol.smiles)
       try {
         const result = await resolveCompound(mol.formula, mol.smiles)
         if (cancelled) return
@@ -31,18 +46,14 @@ export function CompoundStructure({ mol, onAmbiguous }) {
         if (result.isAmbiguous && onAmbiguous) onAmbiguous(true)
         setStatus('ready')
 
-        if (result.smiles) {
-          try {
-            const svg = await smilesToSvg(result.smiles)
-            if (!cancelled) setSvgMarkup(svg)
-          } catch {
-            if (!cancelled) setSvgError(true)
-          }
-        } else {
+        if (!mol.smiles && result.smiles) {
+          renderSvg(result.smiles)
+        } else if (!mol.smiles) {
           setSvgError(true)
         }
       } catch (err) {
         if (!cancelled) {
+          if (!mol.smiles) setSvgError(true)
           setErrorMsg(err.message)
           setStatus('error')
         }
@@ -106,18 +117,14 @@ export function CompoundStructure({ mol, onAmbiguous }) {
       {/* 2D Structure */}
       <div className="compound-structure-panel compound-structure-panel--2d">
         <span className="compound-structure-label">2D</span>
-        {status === 'loading' && spinner}
-        {status === 'error' && error}
-        {status === 'ready' && !svgMarkup && !svgError && (
-          <div className="compound-structure-spinner animate-spin" />
-        )}
-        {status === 'ready' && svgMarkup && (
+        {!svgMarkup && !svgError && spinner}
+        {svgMarkup && (
           <div
             className="compound-structure-svg"
             dangerouslySetInnerHTML={{ __html: svgMarkup }}
           />
         )}
-        {status === 'ready' && svgError && (
+        {svgError && (
           <p className="text-xs text-gray-400 dark:text-gray-500">{t(language, 'structure.2dUnavailable')}</p>
         )}
       </div>

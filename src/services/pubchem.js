@@ -1,23 +1,58 @@
+import { DEFAULTS } from '../data/defaultCompounds'
+
 const CACHE_PREFIX = 'pubchem_cache_'
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'
 const MIN_REQUEST_INTERVAL_MS = 200
 const POLL_INTERVAL_MS = 1000
 const MAX_POLL_ATTEMPTS = 30
+const MAX_REQUEST_ATTEMPTS = 3
 
 let lastRequestTime = 0
+let requestQueue = Promise.resolve()
 
-async function throttle() {
-  const now = Date.now()
-  const elapsed = now - lastRequestTime
-  if (elapsed < MIN_REQUEST_INTERVAL_MS) {
-    await new Promise(resolve => setTimeout(resolve, MIN_REQUEST_INTERVAL_MS - elapsed))
+function bundledCompound(formula, smiles) {
+  if (smiles) return DEFAULTS.find(item => item.formula === formula && item.smiles === smiles)
+  const matches = DEFAULTS.filter(item => item.formula === formula)
+  return matches.length === 1 ? matches[0] : null
+}
+
+async function loadBundledStructure(compound) {
+  const cid = Number(compound.pubchemUrl.split('/').at(-1))
+  const response = await globalThis.fetch(`${import.meta.env.BASE_URL}structures/${cid}.sdf`)
+  if (!response.ok) throw new Error(`Could not load bundled structure for CID ${cid}.`)
+  const molblock = await response.text()
+  if (!molblock.includes('M  END') || !molblock.includes('$$$$')) {
+    throw new Error(`Invalid bundled structure for CID ${cid}.`)
   }
-  lastRequestTime = Date.now()
+  return { cid, molblock, smiles: compound.smiles, isAmbiguous: false }
+}
+
+function throttle() {
+  const turn = requestQueue.catch(() => {}).then(async () => {
+    const elapsed = Date.now() - lastRequestTime
+    if (elapsed < MIN_REQUEST_INTERVAL_MS) await delay(MIN_REQUEST_INTERVAL_MS - elapsed)
+    lastRequestTime = Date.now()
+  })
+  requestQueue = turn
+  return turn
 }
 
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise(resolve => globalThis.setTimeout(resolve, ms))
+}
+
+async function fetchPubChem(url) {
+  for (let attempt = 0; attempt < MAX_REQUEST_ATTEMPTS; attempt++) {
+    await throttle()
+    try {
+      const response = await globalThis.fetch(url)
+      if (![429, 500, 502, 503, 504].includes(response.status) || attempt === MAX_REQUEST_ATTEMPTS - 1) return response
+    } catch (error) {
+      if (attempt === MAX_REQUEST_ATTEMPTS - 1) throw error
+    }
+    await delay(500 * 2 ** attempt)
+  }
 }
 
 /**
@@ -28,9 +63,7 @@ async function pollListKey(listKey) {
 
   for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
     await delay(POLL_INTERVAL_MS)
-    await throttle()
-
-    const response = await fetch(url)
+    const response = await fetchPubChem(url)
     if (response.status === 404) {
       throw new Error('PubChem search returned no results.')
     }
@@ -56,16 +89,14 @@ async function pollListKey(listKey) {
  */
 async function fetchSdf(cid) {
   // Try 3D first, fall back to 2D (ionic compounds like NaCl lack 3D conformers)
-  await throttle()
   const url3d = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`
-  const response3d = await fetch(url3d)
+  const response3d = await fetchPubChem(url3d)
   if (response3d.ok) {
     return response3d.text()
   }
 
-  await throttle()
   const url2d = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF`
-  const response2d = await fetch(url2d)
+  const response2d = await fetchPubChem(url2d)
   if (!response2d.ok) {
     throw new Error(`Could not fetch structure for CID ${cid}.`)
   }
@@ -77,10 +108,8 @@ async function fetchSdf(cid) {
  * This is a direct (synchronous) lookup — no polling needed.
  */
 async function resolveBySmiles(smiles) {
-  await throttle()
-
   const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(smiles)}/property/IsomericSMILES/JSON`
-  const response = await fetch(url)
+  const response = await fetchPubChem(url)
 
   if (response.status === 404) {
     throw new Error(`SMILES "${smiles}" not found in PubChem.`)
@@ -127,6 +156,17 @@ export async function resolveCompound(formula, smiles) {
     localStorage.removeItem(cacheKey)
   }
 
+  const bundled = bundledCompound(formula, smiles)
+  if (bundled) {
+    try {
+      const result = { ...await loadBundledStructure(bundled), cachedAt: Date.now(), appVersion: APP_VERSION }
+      localStorage.setItem(cacheKey, JSON.stringify(result))
+      return result
+    } catch {
+      // A missing asset should not prevent the PubChem fallback below.
+    }
+  }
+
   let cid, resolvedSmiles, isAmbiguous
 
   if (smiles) {
@@ -137,10 +177,8 @@ export async function resolveCompound(formula, smiles) {
     isAmbiguous = false
   } else {
     // Fallback: formula-based async search
-    await throttle()
-
     const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/formula/${encodeURIComponent(formula)}/property/IsomericSMILES/JSON`
-    const response = await fetch(url)
+    const response = await fetchPubChem(url)
 
     if (response.status === 404) {
       throw new Error(`Formula "${formula}" not found in PubChem.`)
