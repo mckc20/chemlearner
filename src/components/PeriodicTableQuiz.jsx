@@ -109,7 +109,6 @@ export default function PeriodicTableQuiz({ onNavigate, initialConfig, onConfigC
   return <section aria-labelledby="periodic-quiz-title" className="periodic-quiz-section">
     <div className="space-y-6" inert={draft ? true : undefined}>
       <SectionHeader
-        number="03"
         title={t(language, mode === 'questions' ? 'periodicQuiz.questions' : 'periodicQuiz.title')}
         description={t(language, mode === 'questions' ? 'periodicQuiz.questionsDescription' : mode === 'find' ? 'periodicQuiz.findDescription' : 'periodicQuiz.description')}
         headingId="periodic-quiz-title"

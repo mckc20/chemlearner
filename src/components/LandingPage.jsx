@@ -9,7 +9,6 @@ export default function LandingPage({ onNavigate, pathname }) {
       <TopNavigation onNavigate={onNavigate} pathname={pathname} />
 
       <main className="landing-hero">
-        <div className="landing-hero__eyebrow">A visual chemistry learning space</div>
         <h1>Explore molecular worlds.</h1>
         <p>Visualise compounds, uncover their structures, and learn about the pieces that make up our worlds.</p>
       </main>

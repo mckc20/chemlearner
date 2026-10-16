@@ -39,7 +39,7 @@ export default function QuizSetup({ quizCompounds, allCompounds, availableGKCoun
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <SectionHeader number="04" title={t(language, 'quizSetup.title')} description={tp(language, 'quizSetup.compoundsSelected', quizCompounds.length)} />
+      <SectionHeader title={t(language, 'quizSetup.title')} description={tp(language, 'quizSetup.compoundsSelected', quizCompounds.length)} />
 
       {/* Quiz type selector */}
       <div className="space-y-2">

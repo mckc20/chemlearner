@@ -192,7 +192,6 @@ function Workspace({ onNavigate, pathname }) {
           {!isPeriodicRoute && activeView === 'library' && (
           <>
             <SectionHeader
-              number="01"
               title={t(language, 'library.title')}
               actions={(
                 <button
@@ -270,7 +269,6 @@ function Workspace({ onNavigate, pathname }) {
         {!isPeriodicRoute && activeView === 'history' && (
           <>
             <SectionHeader
-              number="02"
               title={t(language, 'history.title')}
               actions={(
                 <button

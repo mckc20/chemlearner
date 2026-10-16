@@ -190,7 +190,7 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
   if (phase === 'results') {
     return (
       <div className="max-w-2xl mx-auto">
-        <SectionHeader number="04" title={t(language, 'quiz.complete')} />
+        <SectionHeader title={t(language, 'quiz.complete')} />
         <QuizResults
           questions={questions}
           answers={answers}
@@ -207,7 +207,6 @@ export default function QuizMode({ quizCompounds, allCompounds, quizConfig, getQ
   return (
     <div className="max-w-2xl mx-auto">
       <SectionHeader
-        number="04"
         title={language === 'de' ? 'Üben' : 'Practice'}
         description={t(language, 'quiz.questionOf', { current: currentIndex + 1, total: questions.length })}
       />

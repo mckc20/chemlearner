@@ -77,7 +77,7 @@ export default function ElementProfileDialog({ profile, onChange, onNavigate, on
   return <div className="dialog-scrim element-profile-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
     <section className="element-profile-dialog" role="dialog" aria-labelledby={`${id}-title`} ref={dialogRef} tabIndex={-1}>
       <header className="element-profile-header">
-        <div><p className="profile-eyebrow">{tr('atomicNumber')} {identity.number}</p><h2 id={`${id}-title`}>{elementName(identity, language)}</h2></div>
+        <div><h2 id={`${id}-title`}>{elementName(identity, language)}</h2></div>
         <div className="profile-navigation">
           <a href="/help" onClick={onHelp} className="profile-icon-control" aria-label={tr('help')} title={tr('help')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6" strokeLinecap="round" /><circle cx="12" cy="7.5" r=".8" fill="currentColor" stroke="none" /></svg>

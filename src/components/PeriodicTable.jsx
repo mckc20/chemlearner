@@ -99,7 +99,6 @@ export default function PeriodicTable({ onStartQuiz, onSelectElement, selectedEl
   return (
     <section aria-labelledby="periodic-table-title" className="periodic-table-section space-y-6">
       <SectionHeader
-        number="03"
         title={t(language, 'periodic.title')}
         description={t(language, 'periodic.description')}
         headingId="periodic-table-title"
